@@ -16,37 +16,38 @@ public class CardReader {
     private BluetoothGatt mBluetoothGatt;
     private BluetoothReaderGattCallback mGattCallback;
 
-    private boolean connectReader(final CallbackContext callbackContext, JSONArray data) {
+    private String connectReader(final CallbackContext callbackContext, T[] data) {
         String mDeviceAddress = data.getString(0);
+        return mDeviceAddress;
+        // BLUETOOTH_SERVICE
+        // BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.);
+        // if (bluetoothManager == null) {
+        //     return false;
+        // }
 
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        if (bluetoothManager == null) {
-            return false;
-        }
+        // BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+        // if (bluetoothAdapter == null) {
+        //     return false;
+        // }
 
-        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        if (bluetoothAdapter == null) {
-            return false;
-        }
+        // /*
+        //  * Connect Device.
+        //  */
+        // /* Clear old GATT connection. */
+        //     mBluetoothGatt.disconnect();
+        //     mBluetoothGatt.close();
+        //     mBluetoothGatt = null;
 
-        /*
-         * Connect Device.
-         */
-        /* Clear old GATT connection. */
-            mBluetoothGatt.disconnect();
-            mBluetoothGatt.close();
-            mBluetoothGatt = null;
+        // /* Create a new connection. */
+        // final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(mDeviceAddress);
 
-        /* Create a new connection. */
-        final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(mDeviceAddress);
+        // if (device == null) {
+        //     return false;
+        // }
 
-        if (device == null) {
-            return false;
-        }
-
-        /* Connect to GATT server. */
-        mBluetoothGatt = device.connect(mDeviceAddress, callbackContext);
-        return true;
+        // /* Connect to GATT server. */
+        // mBluetoothGatt = device.connect(mDeviceAddress, callbackContext);
+        // return true;
     }
 
 }
