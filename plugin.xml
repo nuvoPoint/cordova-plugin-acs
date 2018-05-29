@@ -33,7 +33,7 @@
         <!-- Gradle -->
         <framework src="src/acs.gradle" custom="true" type="gradleReference" />
         <!-- Source files -->
-        <source-file src="src/android/com/nuvopoint/Acs.java" target-dir="src/com/nuvopoint/cordova/plugins/acs" />
+        <source-file src="src/android/com/nuvopoint/CardReader.java" target-dir="src/com/nuvopoint/cordova/plugins/cardReader" />
 
         <!-- Recourse files -->
         <resource-file src="src/libs/acsbt-1.0.1.aar" target="libs/acsbt-1.0.1.aar"/>
