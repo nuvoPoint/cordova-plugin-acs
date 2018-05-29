@@ -1,0 +1,32 @@
+{
+    "name": "cordova-plugin-acs",
+    "version": "0.0.1",
+    "description": "Cordova plugin for advanced card systems NFC reader.",
+    "cordova": {
+      "id": "cordova-plugin-acs",
+      "platforms": [
+        "android"
+      ]
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/Eonfire/cordova-plugin-acs"
+    },
+    "keywords": [
+      "cordova-android",
+      "nfc",
+      "acr"
+    ],
+    "engines": [
+      {
+        "name": "cordova",
+        "version": ">=3.0.0"
+      }
+    ],
+    "author": "nuvopoint <lv@nuvopoint.dk>",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/Eonfire/cordova-plugin-acs/issues"
+    },
+    "homepage": "https://github.com/Eonfire/cordova-plugin-acs/"
+  }
