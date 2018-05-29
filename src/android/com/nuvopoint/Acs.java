@@ -35,7 +35,7 @@ public class CardReader {
         /* Clear old GATT connection. */
             mBluetoothGatt.disconnect();
             mBluetoothGatt.close();
-            mBluetoothGatt = nulll
+            mBluetoothGatt = null;
 
         /* Create a new connection. */
         final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(mDeviceAddress);
