@@ -16,8 +16,8 @@ public class CardReader {
     private BluetoothGatt mBluetoothGatt;
     private BluetoothReaderGattCallback mGattCallback;
 
-    private String connectReader(final CallbackContext callbackContext, T[] data) {
-        String mDeviceAddress = data.getString(0);
+    private String connectReader(final CallbackContext callbackContext, String[] data) {
+        String mDeviceAddress = data.toString();
         return mDeviceAddress;
         // BLUETOOTH_SERVICE
         // BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.);
