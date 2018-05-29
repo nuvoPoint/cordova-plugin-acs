@@ -16,7 +16,7 @@ public class CardReader {
     private BluetoothGatt mBluetoothGatt;
     private BluetoothReaderGattCallback mGattCallback;
 
-    private boolean connectReader(final CallbackContext callbackContext, data) {
+    private boolean connectReader(final CallbackContext callbackContext, JSONArray data) {
         String mDeviceAddress = data.getString(0);
 
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -35,8 +35,7 @@ public class CardReader {
         /* Clear old GATT connection. */
             mBluetoothGatt.disconnect();
             mBluetoothGatt.close();
-            mBluetoothGatt = null;
-        }
+            mBluetoothGatt = nulll
 
         /* Create a new connection. */
         final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(mDeviceAddress);
