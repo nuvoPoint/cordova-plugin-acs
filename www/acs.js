@@ -5,7 +5,7 @@ function Acs() { }
 // Message is a string, duration may be 'long' or 'short'
 
 Acs.connectReader = function (readerAddress, success, failure) {
-  cordova.exec(success, failure, "Acs", "connectReader", [readerAddress]);
+  cordova.exec(success, failure, "CardReader", "connectReader", [readerAddress]);
 };
 
 

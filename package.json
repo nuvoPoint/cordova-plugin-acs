@@ -1,6 +1,6 @@
 {
     "name": "cordova-plugin-acs",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Cordova plugin for advanced card systems NFC reader.",
     "cordova": {
       "id": "cordova-plugin-acs",

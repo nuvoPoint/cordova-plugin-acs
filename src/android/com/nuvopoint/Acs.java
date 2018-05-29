@@ -5,32 +5,27 @@ import android.content.Context;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
-import android.util.Log;
 
-import com.acs.smartcard.Reader;
 import com.acs.bluetooth.BluetoothReaderGattCallback;
 import com.acs.bluetooth.BluetoothReaderGattCallback.OnConnectionStateChangeListener;
 
 import org.apache.cordova.CallbackContext;
 
-public class Acs extends CordovaPlugin {
+public class CardReader {
     /* Bluetooth GATT client. */
     private BluetoothGatt mBluetoothGatt;
     private BluetoothReaderGattCallback mGattCallback;
 
-    private boolean connectReader(final CallbackContext callbackContext, JSONArray data) {
+    private boolean connectReader(final CallbackContext callbackContext, data) {
         String mDeviceAddress = data.getString(0);
-        Log.w(mDeviceAddress);
 
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager == null) {
-            Log.w("Unable to initialize BluetoothManager.");
             return false;
         }
 
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter == null) {
-            Log.w("Unable to obtain a BluetoothAdapter.");
             return false;
         }
 
@@ -38,8 +33,6 @@ public class Acs extends CordovaPlugin {
          * Connect Device.
          */
         /* Clear old GATT connection. */
-        if (mBluetoothGatt != null) {
-            Log.i("Clear old GATT connection");
             mBluetoothGatt.disconnect();
             mBluetoothGatt.close();
             mBluetoothGatt = null;
@@ -49,7 +42,6 @@ public class Acs extends CordovaPlugin {
         final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(mDeviceAddress);
 
         if (device == null) {
-            Log.w("Device not found. Unable to connect.");
             return false;
         }
 
