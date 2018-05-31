@@ -35,7 +35,7 @@ public class CardReader extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
         if(action.equalsIgnoreCase(CONNECT_READER)){
-            connectReader(callbackContext, data)
+            connectReader(callbackContext, data);
         } else {
             return false;
         }
@@ -46,7 +46,7 @@ public class CardReader extends CordovaPlugin {
 
     private String connectReader(final CallbackContext callbackContext, String[] data) {
         String myDeviceAddress = data.getString(0);
-        callbackContext.success(myDeviceAddress)
+        callbackContext.success(myDeviceAddress);
 
 
         // BLUETOOTH_SERVICE
