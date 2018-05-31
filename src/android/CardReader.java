@@ -31,7 +31,6 @@ public class CardReader extends CordovaPlugin {
     /* Bluetooth GATT client. */
     private BluetoothGatt mBluetoothGatt;
     private BluetoothReaderGattCallback mGattCallback;
-    private Activity pluginActivity;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -50,7 +49,7 @@ public class CardReader extends CordovaPlugin {
     }
 
 
-    private String connectReader(final CallbackContext callbackContext, String[] data) {
+    private String connectReader(final CallbackContext callbackContext, JSONArray[] data) {
         String myDeviceAddress = data.getString(0);
         callbackContext.success(myDeviceAddress);
 
