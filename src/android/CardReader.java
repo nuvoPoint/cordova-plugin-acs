@@ -53,8 +53,8 @@ public class CardReader extends CordovaPlugin {
         try {
             String myDeviceAddress = data.getString(0);
             callbackContext.success(myDeviceAddress);
-        } catch {
-            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Can't parse amount"));
+        } catch (Exception e){
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Can't parse currency"));
         }
 
 
