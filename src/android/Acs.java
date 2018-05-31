@@ -25,7 +25,7 @@ import com.acs.bluetooth.BluetoothReaderGattCallback.OnConnectionStateChangeList
 
 import org.apache.cordova.CallbackContext;
 
-public class CardReader extends CordovaPlugin {
+public class Acs extends CordovaPlugin {
     private static final String CONNECT_READER = "connectReader";
 
     /* Bluetooth GATT client. */
