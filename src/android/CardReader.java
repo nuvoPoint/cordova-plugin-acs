@@ -49,7 +49,7 @@ public class CardReader extends CordovaPlugin {
     }
 
 
-    private String connectReader(final CallbackContext callbackContext, JSONArray[] data) {
+    private String connectReader(final CallbackContext callbackContext, JSONArray data) {
         String myDeviceAddress = data.getString(0);
         callbackContext.success(myDeviceAddress);
 
