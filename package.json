@@ -1,32 +1,42 @@
 {
-    "name": "cordova-plugin-acs",
-    "version": "0.0.5",
-    "description": "Cordova plugin for advanced card systems NFC reader.",
-    "cordova": {
-      "id": "cordova-plugin-acs",
-      "platforms": [
-        "android"
-      ]
-    },
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/Eonfire/cordova-plugin-acs"
-    },
-    "keywords": [
-      "cordova-android",
-      "nfc",
-      "acr"
-    ],
-    "engines": [
-      {
-        "name": "cordova",
-        "version": ">=3.0.0"
-      }
-    ],
-    "author": "nuvopoint <lv@nuvopoint.dk>",
-    "license": "MIT",
-    "bugs": {
-      "url": "https://github.com/Eonfire/cordova-plugin-acs/issues"
-    },
-    "homepage": "https://github.com/Eonfire/cordova-plugin-acs/"
+  "name": "cordova-plugin-acs",
+  "description": "Cordova plugin for advanced card systems(ACS) NFC reader.",
+  "author": "nuvopoint",
+  "license": "MIT",
+  "version": "0.0.5",
+  "homepage": "https://github.com/Eonfire/cordova-plugin-acs/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eonfire/cordova-plugin-acs"
+  },
+  "bugs": {
+    "url": "https://github.com/Eonfire/cordova-plugin-acs/issues"
+  },
+  "cordova": {
+    "id": "cordova-plugin-acs",
+    "platforms": [
+      "android"
+    ]
+  },
+  "keywords": [
+    "cordova-android",
+    "nfc",
+    "acs"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.0.0"
+    }
+  ],
+  "scripts": {
+    "lint": "eslint **/*.js",
+    "cordova-paramedic": "cordova-paramedic",
+    "test:android": "cordova-paramedic --cleanUpAfterRun --verbose --platform android --plugin .",
+    "test:ios": "cordova-paramedic --cleanUpAfterRun --verbose --platform ios --plugin ."
+  },
+  "devDependencies": {
+    "cordova-paramedic": "git+https://github.com/apache/cordova-paramedic.git",
+    "eslint": "^3.18.0"
   }
+}
