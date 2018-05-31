@@ -14,14 +14,14 @@ ACS.prototype.init = function (msg, onSuccess, onError) {
         onSuccess(obj);
     };
 
-    exec(successCallback, errorCallback, 'CardReader', 'init', [msg]);
+    exec(successCallback, errorCallback, 'Acs', 'init', [msg]);
 };
 
 // The function that passes work along to native shells
 // Message is a string, duration may be 'long' or 'short'
 
 ACS.prototype.connectReader = function (readerAddress, success, failure) {
-  cordova.exec(success, failure, "CardReader", "connectReader", [readerAddress]);
+  cordova.exec(success, failure, "Acs", "connectReader", [readerAddress]);
 };
 
 if (typeof module != 'undefined' && module.exports) {

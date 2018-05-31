@@ -18,14 +18,14 @@
         <engine name="cordova" version=">=3.0.0"/>
     </engines>
 
-    <js-module src="www/acs.js" name="ACS">
+    <js-module src="www/acs.js" name="acs">
         <clobbers target="cordova-plugin-acs" />
     </js-module>
 
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="Acs">
-                <param name="android-package" value="com.nuvopoint.cordova.acs"/>
+                <param name="android-package" value="com.nuvopoint.cordova.Acs"/>
             </feature>
         </config-file>
 
@@ -38,7 +38,7 @@
         <!-- Gradle -->
         <framework src="src/acs.gradle" custom="true" type="gradleReference" />
         <!-- Source files -->
-        <source-file src="src/android/CardReader.java" target-dir="src/cordova/cardReader" />
+        <source-file src="src/android/Acs.java" target-dir="src/com/nuvopoint/cordova" />
         <!-- Recourse files -->
         <resource-file src="src/libs/acsbt-1.0.1.aar" target="libs/acsbt-1.0.1.aar"/>
     </platform>

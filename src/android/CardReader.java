@@ -1,4 +1,4 @@
-package android;
+package com.nuvopoint.cordova;
 
 import android.bluetooth.*;
 import android.content.Context;
