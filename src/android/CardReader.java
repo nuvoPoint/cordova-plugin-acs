@@ -2,9 +2,23 @@ package android;
 
 import android.bluetooth.*;
 import android.content.Context;
+import android.content.Intent;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
+
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.PluginResult;
+import org.apache.cordova.CordovaInterface;
+import org.apache.cordova.CordovaWebView;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.acs.bluetooth.BluetoothReaderGattCallback;
 import com.acs.bluetooth.BluetoothReaderGattCallback.OnConnectionStateChangeListener;
@@ -17,24 +31,16 @@ public class CardReader extends CordovaPlugin {
     /* Bluetooth GATT client. */
     private BluetoothGatt mBluetoothGatt;
     private BluetoothReaderGattCallback mGattCallback;
+    private Activity pluginActivity;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        super.initialize(cordova, webView);
-
-        Runnable runnable = new Runnable() {
-            public void run() {
-                SumUpState.init(cordova.getActivity());
-            }
-        };
-
-        cordova.getActivity().runOnUiThread(runnable);
     }
 
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
-        if(action.equalsIgnoreCase(CONNECT_READER)){
+        if (action.equalsIgnoreCase(CONNECT_READER)) {
             connectReader(callbackContext, data);
         } else {
             return false;
