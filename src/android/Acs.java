@@ -181,7 +181,17 @@ public class Acs extends CordovaPlugin {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             Gson gson = new Gson();
-            PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, gson.toJson(result));
+            String resultStr;
+            try {
+                resultStr = gson.toJson(result);
+            } catch (Throwable e) {
+                if (result != null) {
+                    resultStr = result.toString();
+                } else {
+                    resultStr = e.getMessage();
+                }
+            }
+            PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
             pluginRes.setKeepCallback(true);
             startScanCallbackContext.sendPluginResult(pluginRes);
         }
@@ -190,7 +200,19 @@ public class Acs extends CordovaPlugin {
         public void onBatchScanResults(List<ScanResult> results) {
             Gson gson = new Gson();
             for (ScanResult sr : results) {
-                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, gson.toJson(sr));
+                String resultStr;
+                try {
+                    resultStr = gson.toJson(sr);
+                } catch (Throwable e) {
+                    if (sr != null) {
+                        resultStr = sr.toString();
+                    } else {
+                        resultStr = e.getMessage();
+                    }
+                }
+
+
+                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
                 pluginRes.setKeepCallback(true);
                 startScanCallbackContext.sendPluginResult(pluginRes);
             }
