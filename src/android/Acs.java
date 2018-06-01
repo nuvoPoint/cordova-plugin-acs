@@ -1,6 +1,7 @@
 package com.nuvopoint.cordova;
 
 import android.app.Activity;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.bluetooth.BluetoothGatt;
@@ -17,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.content.pm.PackageManager;
 import android.Manifest;
 import 	android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
 
 
 import org.apache.cordova.CordovaPlugin;
@@ -29,6 +31,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import com.acs.bluetooth.*;
+
+import java.util.List;
 
 
 public class Acs extends CordovaPlugin {
@@ -149,29 +153,28 @@ public class Acs extends CordovaPlugin {
     }
 
     private synchronized void scanLeDevice(boolean enable, final CallbackContext callbackContext) {
+        BluetoothLeScanner mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         if (enable) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             cordova.getActivity().startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 
-
-            BluetoothLeScanner mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
             // Stops scanning after a predefined scan period.
             Log.d(TAG, "Scanning!!!");
             this.startScanCallbackContext = callbackContext;
             mHandler.postDelayed(() -> {
                 if (mScanning) {
                     mScanning = false;
-                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                    mBluetoothLeScanner.stopScan(mScanCallback);
                 }
                 Log.d("BTReader", "Scan Reader Complete!!!");
                 this.startScanCallbackContext.success("Scan complete!");
                 this.startScanCallbackContext = null;
             }, SCAN_PERIOD);
             mScanning = true;
-            mBluetoothAdapter.startLeScan(mLeScanCallback);
+            mBluetoothLeScanner.startScan(mScanCallback);
         } else {
             mScanning = false;
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            mBluetoothLeScanner.stopScan(mScanCallback);
             mHandler.removeCallbacksAndMessages(null);
             this.startScanCallbackContext.success("Scan complete");
             this.startScanCallbackContext = null;
@@ -197,12 +200,31 @@ public class Acs extends CordovaPlugin {
 //    }
 //  }
 
-    private LeScanCallback mLeScanCallback = ((final BluetoothDevice device, int rssi, byte[] scanRecord) -> {
+    private ScanCallback mScanCallback = new ScanCallback() {
 
-        PluginResult result = new PluginResult(PluginResult.Status.OK, device.toString());
-        result.setKeepCallback(true);
-        callbackContext.sendPluginResult(result);
-    });
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            BluetoothDevice btDevice = result.getDevice();
+
+            PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, btDevice.toString());
+            pluginRes.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginRes);
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            for (ScanResult sr : results) {
+                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, sr.toString());
+                pluginRes.setKeepCallback(true);
+                callbackContext.sendPluginResult(pluginRes);
+            }
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            callbackContext.error(errorCode);
+        }
+    };
 
 
     private void connectReader(final CallbackContext callbackContext, JSONArray data) {
