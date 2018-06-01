@@ -33,7 +33,7 @@ public class Acs extends CordovaPlugin {
     /* Bluetooth GATT client. */
     private BluetoothGatt mBluetoothGatt;
     private BluetoothReaderGattCallback mGattCallback;
-    private BluetoothManager mBluetoothManager ;
+    private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothReaderManager mBluetoothReaderManager = new BluetoothReaderManager();
 
@@ -48,6 +48,8 @@ public class Acs extends CordovaPlugin {
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        this.mHandler = new Handler();
+        this.pluginActivity = cordova.getActivity();
         mBluetoothManager = (BluetoothManager) pluginActivity.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
@@ -61,10 +63,10 @@ public class Acs extends CordovaPlugin {
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
         if (action.equalsIgnoreCase(CONNECT_READER)) {
             connectReader(callbackContext, data);
-        } if (action.equalsIgnoreCase(SCAN_FOR_DEVICES)) {
-            scanForDevices(callbackContext);
         }
-        else {
+        if (action.equalsIgnoreCase(SCAN_FOR_DEVICES)) {
+            scanForDevices(callbackContext);
+        } else {
             return false;
         }
 
@@ -72,19 +74,15 @@ public class Acs extends CordovaPlugin {
     }
 
     private void scanForDevices(CallbackContext callbackContext) {
-        mBluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         this.callbackContext = callbackContext;
         this.scanLeDevice();
     }
 
     private void scanLeDevice() {
         // Stops scanning after a predefined scan period.
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mScanning = false;
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            }
+        mHandler.postDelayed(() -> {
+            mScanning = false;
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }, SCAN_PERIOD);
         mScanning = true;
         mBluetoothAdapter.startLeScan(mLeScanCallback);
