@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.util.Log;
 
@@ -30,6 +29,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import com.acs.bluetooth.*;
+
+import com.google.gson.Gson;
 
 import java.util.List;
 
@@ -179,17 +180,17 @@ public class Acs extends CordovaPlugin {
     ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            BluetoothDevice btDevice = result.getDevice();
-
-            PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, result.toString());
+            Gson gson = new Gson();
+            PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, gson.toJson(result));
             pluginRes.setKeepCallback(true);
             startScanCallbackContext.sendPluginResult(pluginRes);
         }
 
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
+            Gson gson = new Gson();
             for (ScanResult sr : results) {
-                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, sr.toString());
+                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, gson.toJson(sr));
                 pluginRes.setKeepCallback(true);
                 startScanCallbackContext.sendPluginResult(pluginRes);
             }
