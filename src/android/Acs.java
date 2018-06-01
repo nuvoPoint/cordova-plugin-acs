@@ -34,7 +34,8 @@ import com.acs.bluetooth.*;
 public class Acs extends CordovaPlugin {
     private static final String TAG = "NFCReader";
     private static final String CONNECT_READER = "connectReader";
-    private static final String SCAN_FOR_DEVICES = "scanForDevices";
+    private static final String START_SCAN = "startScan";
+    private static final String STOP_SCAN = "stopScan";
     private static final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_PERMISSION_ACCESS_FINE_LOCATION = 1;
     private final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION = 1;
@@ -85,14 +86,19 @@ public class Acs extends CordovaPlugin {
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
         if (action.equalsIgnoreCase(CONNECT_READER)) {
             cordova.getThreadPool().execute(() -> {
-                connectReader(callbackContext, data);
+                this.connectReader(callbackContext, data);
             });
         }
-        if (action.equalsIgnoreCase(SCAN_FOR_DEVICES)) {
+        if (action.equalsIgnoreCase(START_SCAN)) {
             cordova.getThreadPool().execute(() -> {
-                scanForDevices(callbackContext);
+                this.startScan(callbackContext);
             });
-        } else {
+        }
+        if (action.equalsIgnoreCase(STOP_SCAN)) {
+            cordova.getThreadPool().execute(() -> {
+                this.stopScan();
+            });
+        }else {
             return false;
         }
 
