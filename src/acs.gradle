@@ -7,7 +7,6 @@ repositories{
 
 dependencies {
     compile(name:'acsbt-1.0.1', ext:'aar')
-    implementation 'com.google.code.gson:gson:2.8.4'
 }
 
 android {

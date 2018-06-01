@@ -37,6 +37,7 @@
 
         <!-- Gradle -->
         <framework custom="true" src="src/acs.gradle" type="gradleReference" />
+        <framework custom="true" src="src/gson.gradle" type="gradleReference" />
         <!-- Source files -->
         <source-file src="src/android/Acs.java" target-dir="src/com/nuvopoint/cordova" />
         <!-- Recourse files -->
