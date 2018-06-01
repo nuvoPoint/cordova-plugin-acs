@@ -148,7 +148,7 @@ public class Acs extends CordovaPlugin {
             cordova.getActivity().startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 
 
-            BluetoothLeScanner mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner()
+            BluetoothLeScanner mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
             // Stops scanning after a predefined scan period.
             Log.d(TAG, "Scanning!!!");
             this.startScanCallbackContext = callbackContext;
