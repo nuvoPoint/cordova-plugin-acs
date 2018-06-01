@@ -25,7 +25,11 @@ ACS.prototype.connectReader = function (readerAddress, success, failure) {
 };
 
 ACS.prototype.scanForDevices = function (success, failure) {
-  cordova.exec(success, failure, "Acs", "scanForDevices", []);
+  cordova.exec(success, failure, "Acs", "startScan", []);
+};
+
+ACS.prototype.scanForDevices = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "stopScan", []);
 };
 
 if (typeof module != 'undefined' && module.exports) {
