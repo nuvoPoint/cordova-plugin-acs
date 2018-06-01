@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    id="cordova-plugin-acs"
-    version="0.0.5">
+<plugin id="cordova-plugin-acs" version="0.0.5" xmlns="http://apache.org/cordova/ns/plugins/1.0">
 
     <name>ACS</name>
     <author>nuvoPoint</author>
@@ -15,31 +13,32 @@
     <keywords>cordova,android,nfc,acr,acs</keywords>
 
     <engines>
-        <engine name="cordova" version=">=3.0.0"/>
+        <engine name="cordova" version=">=3.0.0" />
     </engines>
 
-    <js-module src="www/acs.js" name="acs">
+    <js-module name="acs" src="www/acs.js">
         <clobbers target="cordova-plugin-acs" />
     </js-module>
 
     <platform name="android">
-        <config-file target="res/xml/config.xml" parent="/*">
+        <config-file parent="/*" target="res/xml/config.xml">
             <feature name="Acs">
-                <param name="android-package" value="com.nuvopoint.cordova.Acs"/>
+                <param name="android-package" value="com.nuvopoint.cordova.Acs" />
             </feature>
         </config-file>
 
-        <config-file target="AndroidManifest.xml" parent="/*">
-            <uses-permission android:name="android.permission.BLUETOOTH"/>
-            <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-            <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+        <config-file parent="/*" target="AndroidManifest.xml">
+            <uses-permission android:name="android.permission.BLUETOOTH" />
+            <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+            <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+            <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
         </config-file>
 
         <!-- Gradle -->
-        <framework src="src/acs.gradle" custom="true" type="gradleReference" />
+        <framework custom="true" src="src/acs.gradle" type="gradleReference" />
         <!-- Source files -->
         <source-file src="src/android/Acs.java" target-dir="src/com/nuvopoint/cordova" />
         <!-- Recourse files -->
-        <resource-file src="src/libs/acsbt-1.0.1.aar" target="libs/acsbt-1.0.1.aar"/>
+        <resource-file src="src/libs/acsbt-1.0.1.aar" target="libs/acsbt-1.0.1.aar" />
     </platform>
 </plugin>
