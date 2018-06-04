@@ -32,6 +32,14 @@ ACS.prototype.getCardStatus = function (success, failure) {
   cordova.exec(success, failure, "Acs", "getCardStatus", []);
 };
 
+ACS.prototype.listenForADPU = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "listenForADPU", []);
+};
+
+ACS.prototype.stopListeningForADPU = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "stopListeningForADPU", []);
+};
+
 ACS.prototype.startScan = function (success, failure) {
   cordova.exec(success, failure, "Acs", "startScan", []);
 };

@@ -42,8 +42,10 @@ public class Acs extends CordovaPlugin {
     private static final String CONNECT_READER = "connectReader";
     private static final String START_SCAN = "startScan";
     private static final String STOP_SCAN = "stopScan";
-    private static final String GET_CONNECTION_STATUS = "GetConnectionStatus";
-    private static final String GET_CARD_STATUS = "GetCardStatus";
+    private static final String GET_CONNECTION_STATUS = "getConnectionStatus";
+    private static final String GET_CARD_STATUS = "getCardStatus";
+    private static final String LISTEN_FOR_ADPU = "listenForADPU";
+    private static final String STOP_LISTENING_FOR_ADPU = "stopListeningForADPU";
     private static final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_PERMISSION_ACCESS_FINE_LOCATION = 1;
     private final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION = 1;
@@ -65,6 +67,7 @@ public class Acs extends CordovaPlugin {
     private static final long SCAN_PERIOD = 10000;
 
     private CallbackContext callbackContext;
+    private CallbackContext adpuContext;
 
 
     private int connectionState;
@@ -103,9 +106,11 @@ public class Acs extends CordovaPlugin {
             // TODO: Show the power off card response.
         });
 
-        mBluetoothReader.setOnCardStatusChangeListener((BluetoothReader bluetoothReader,    int cardStatus) -> {
+        mBluetoothReader.setOnCardStatusChangeListener((BluetoothReader bluetoothReader, int cardStatus) -> {
             // TODO: Show the card status.
         });
+
+        mBluetoothReader.
     }
 
 
@@ -125,6 +130,14 @@ public class Acs extends CordovaPlugin {
         }
         if (action.equalsIgnoreCase(GET_CONNECTION_STATUS)) {
             cordova.getThreadPool().execute(() -> this.getConnectionStatus(callbackContext));
+            return true;
+        }
+        if (action.equalsIgnoreCase(LISTEN_FOR_ADPU)) {
+            cordova.getThreadPool().execute(() -> this.listenForADPU(callbackContext));
+            return true;
+        }
+        if (action.equalsIgnoreCase(STOP_LISTENING_FOR_ADPU)) {
+            cordova.getThreadPool().execute(() -> this.stopListeningForADPU());
             return true;
         }
         if (action.equalsIgnoreCase(GET_CARD_STATUS)) {
@@ -260,10 +273,11 @@ public class Acs extends CordovaPlugin {
         try {
             String myDeviceAddress = data.getString(0);
 
-            this.mBluetoothGatt.disconnect();
-            this.mBluetoothGatt.close();
-            this.mBluetoothGatt = null;
-
+            if (this.mBluetoothGatt != null) {
+                this.mBluetoothGatt.disconnect();
+                this.mBluetoothGatt.close();
+                this.mBluetoothGatt = null;
+            }
 
             this.mGattCallback = new BluetoothReaderGattCallback();
             mGattCallback.setOnConnectionStateChangeListener((final BluetoothGatt gatt, final int state, final int newState) -> {
@@ -305,6 +319,22 @@ public class Acs extends CordovaPlugin {
 
     private void getCardStatus(final CallbackContext callbackContext) {
         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, mBluetoothReader.getCardStatus()));
+    }
+
+    private void listenForADPU(final CallbackContext callbackContext) {
+        this.adpuContext = callbackContext;
+        mBluetoothReader.setOnResponseApduAvailableListener((BluetoothReader bluetoothReader, byte[] apdu, int errorCode) -> {
+            Gson gson = new Gson();
+            String resultStr = gson.toJson(apdu);
+            PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
+            pluginRes.setKeepCallback(true);
+            startScanCallbackContext.sendPluginResult(pluginRes);
+        });
+    }
+
+    private void stopListeningForADPU(){
+        this.adpuContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "finished"));
+        this.mBluetoothReader.setOnResponseApduAvailableListener(null);
     }
 
 }

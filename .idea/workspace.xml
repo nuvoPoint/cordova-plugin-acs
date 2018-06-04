@@ -15,13 +15,15 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Acs.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Acs.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/android/Acs.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2388">
-              <caret line="264" column="40" lean-forward="false" selection-start-line="264" selection-start-column="24" selection-end-line="264" selection-end-column="40" />
+            <state relative-caret-position="4505">
+              <caret line="313" column="0" lean-forward="false" selection-start-line="313" selection-start-column="0" selection-end-line="313" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#9741#9742#0" expanded="true" />
+                <element signature="e#9806#9807#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -47,11 +49,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="acs.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="acs.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/www/acs.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="27" column="60" lean-forward="false" selection-start-line="27" selection-start-column="41" selection-end-line="27" selection-end-column="60" />
+            <state relative-caret-position="395">
+              <caret line="35" column="54" lean-forward="false" selection-start-line="35" selection-start-column="41" selection-end-line="35" selection-end-column="54" />
               <folding />
             </state>
           </provider>
@@ -112,8 +114,8 @@
         <option value="$PROJECT_DIR$/src/gson.gradle" />
         <option value="$PROJECT_DIR$/plugin.xml" />
         <option value="$PROJECT_DIR$/src/acs.gradle" />
-        <option value="$PROJECT_DIR$/www/acs.js" />
         <option value="$PROJECT_DIR$/src/android/Acs.java" />
+        <option value="$PROJECT_DIR$/www/acs.js" />
       </list>
     </option>
   </component>
@@ -180,7 +182,7 @@
     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
     <property name="settings.editor.selected.configurable" value="http.proxy" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../tillty/platforms/android" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1528101335075" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1528104192001" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -571,6 +573,8 @@
           <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#9741#9742#0" expanded="true" />
+            <element signature="e#9806#9807#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -629,6 +633,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#9741#9742#0" expanded="true" />
+            <element signature="e#9806#9807#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -687,6 +693,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#9741#9742#0" expanded="true" />
+            <element signature="e#9806#9807#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -745,6 +753,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#9741#9742#0" expanded="true" />
+            <element signature="e#9806#9807#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -803,6 +813,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#9741#9742#0" expanded="true" />
+            <element signature="e#9806#9807#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -813,6 +825,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#9741#9742#0" expanded="true" />
+            <element signature="e#9806#9807#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -897,21 +911,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/www/acs.js">
+    <entry file="file://$PROJECT_DIR$/src/android/Acs.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="27" column="60" lean-forward="false" selection-start-line="27" selection-start-column="41" selection-end-line="27" selection-end-column="60" />
-          <folding />
+        <state relative-caret-position="4505">
+          <caret line="313" column="0" lean-forward="false" selection-start-line="313" selection-start-column="0" selection-end-line="313" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#9741#9742#0" expanded="true" />
+            <element signature="e#9806#9807#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/android/Acs.java">
+    <entry file="file://$PROJECT_DIR$/www/acs.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2388">
-          <caret line="264" column="40" lean-forward="false" selection-start-line="264" selection-start-column="24" selection-end-line="264" selection-end-column="40" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state relative-caret-position="395">
+          <caret line="35" column="54" lean-forward="false" selection-start-line="35" selection-start-column="41" selection-end-line="35" selection-end-column="54" />
+          <folding />
         </state>
       </provider>
     </entry>
