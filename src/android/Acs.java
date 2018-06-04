@@ -109,8 +109,6 @@ public class Acs extends CordovaPlugin {
         mBluetoothReader.setOnCardStatusChangeListener((BluetoothReader bluetoothReader, int cardStatus) -> {
             // TODO: Show the card status.
         });
-
-        mBluetoothReader.
     }
 
 
