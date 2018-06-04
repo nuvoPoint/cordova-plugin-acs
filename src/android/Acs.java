@@ -2,6 +2,7 @@ package com.nuvopoint.cordova;
 
 import android.app.Activity;
 import android.bluetooth.le.ScanResult;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.bluetooth.BluetoothGatt;
@@ -11,6 +12,7 @@ import android.util.Log;
 
 
 import android.os.Handler;
+import android.bluetooth.BluetoothProfile;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.app.ActivityCompat;
 import android.content.pm.PackageManager;
@@ -40,6 +42,8 @@ public class Acs extends CordovaPlugin {
     private static final String CONNECT_READER = "connectReader";
     private static final String START_SCAN = "startScan";
     private static final String STOP_SCAN = "stopScan";
+    private static final String GET_CONNECTION_STATUS = "GetConnectionStatus";
+    private static final String GET_CARD_STATUS = "GetCardStatus";
     private static final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_PERMISSION_ACCESS_FINE_LOCATION = 1;
     private final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION = 1;
@@ -52,6 +56,7 @@ public class Acs extends CordovaPlugin {
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothReaderManager mBluetoothReaderManager = new BluetoothReaderManager();
+    private BluetoothReader mBluetoothReader;
 
     //For Scanning
     private Context mContext;
@@ -61,6 +66,8 @@ public class Acs extends CordovaPlugin {
 
     private CallbackContext callbackContext;
 
+
+    private int connectionState;
 
     // Idk
     private CallbackContext startScanCallbackContext;
@@ -83,6 +90,22 @@ public class Acs extends CordovaPlugin {
             String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
             ActivityCompat.requestPermissions(cordova.getActivity(), permissions, REQUEST_PERMISSION_ACCESS_COARSE_LOCATION);
         }
+
+        this.mBluetoothReaderManager.setOnReaderDetectionListener((BluetoothReader bluetoothReader) -> {
+            this.mBluetoothReader = bluetoothReader;
+            this.mBluetoothReader.enableNotification(true);
+            return;
+        });
+    }
+
+    void enableListeners() {
+        mBluetoothReader.setOnCardPowerOffCompleteListener((BluetoothReader bluetoothReader, int result) -> {
+            // TODO: Show the power off card response.
+        });
+
+        mBluetoothReader.setOnCardStatusChangeListener((BluetoothReader bluetoothReader,    int cardStatus) -> {
+            // TODO: Show the card status.
+        });
     }
 
 
@@ -98,6 +121,14 @@ public class Acs extends CordovaPlugin {
         }
         if (action.equalsIgnoreCase(STOP_SCAN)) {
             cordova.getThreadPool().execute(() -> this.stopScan());
+            return true;
+        }
+        if (action.equalsIgnoreCase(GET_CONNECTION_STATUS)) {
+            cordova.getThreadPool().execute(() -> this.getConnectionStatus(callbackContext));
+            return true;
+        }
+        if (action.equalsIgnoreCase(GET_CARD_STATUS)) {
+            cordova.getThreadPool().execute(() -> this.getCardStatus(callbackContext));
             return true;
         } else {
             return false;
@@ -228,41 +259,52 @@ public class Acs extends CordovaPlugin {
     private void connectReader(final CallbackContext callbackContext, JSONArray data) {
         try {
             String myDeviceAddress = data.getString(0);
-            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, myDeviceAddress));
+
+            this.mBluetoothGatt.disconnect();
+            this.mBluetoothGatt.close();
+            this.mBluetoothGatt = null;
+
+
+            this.mGattCallback = new BluetoothReaderGattCallback();
+            mGattCallback.setOnConnectionStateChangeListener((final BluetoothGatt gatt, final int state, final int newState) -> {
+                if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    // Detect the reader.
+                    if (mBluetoothReaderManager != null) {
+                        mBluetoothReaderManager.detectReader(gatt, mGattCallback);
+                    }
+                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    mBluetoothReader = null;
+
+                    // Release resources occupied by Bluetooth GATT client.
+                    if (mBluetoothGatt != null) {
+                        mBluetoothGatt.close();
+                        mBluetoothGatt = null;
+                    }
+                }
+                this.connectionState = newState;
+            });
+
+
+            final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(myDeviceAddress);
+            this.mBluetoothGatt = device.connectGatt(this.cordova.getContext(), false, mGattCallback);
+
+
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, this.mBluetoothGatt.GATT_SUCCESS));
         } catch (Exception e) {
-            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Can't parse currency"));
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Something went wrong with the connection"));
         }
 
 
-        // BLUETOOTH_SERVICE
-        // BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.);
-        // if (bluetoothManager == null) {
-        //     return false;
-        // }
+    }
 
-        // BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        // if (bluetoothAdapter == null) {
-        //     return false;
-        // }
 
-        // /*
-        //  * Connect Device.
-        //  */
-        // /* Clear old GATT connection. */
-        //     mBluetoothGatt.disconnect();
-        //     mBluetoothGatt.close();
-        //     mBluetoothGatt = null;
+    private void getConnectionStatus(final CallbackContext callbackContext) {
+        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, this.connectionState));
+    }
 
-        // /* Create a new connection. */
-        // final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(mDeviceAddress);
 
-        // if (device == null) {
-        //     return false;
-        // }
-
-        // /* Connect to GATT server. */
-        // mBluetoothGatt = device.connect(mDeviceAddress, callbackContext);
-        // return true;
+    private void getCardStatus(final CallbackContext callbackContext) {
+        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, mBluetoothReader.getCardStatus()));
     }
 
 }

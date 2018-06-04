@@ -24,6 +24,14 @@ ACS.prototype.connectReader = function (readerAddress, success, failure) {
   cordova.exec(success, failure, "Acs", "connectReader", [readerAddress]);
 };
 
+ACS.prototype.getConnectionStatus = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "getConnectionStatus", []);
+};
+
+ACS.prototype.getCardStatus = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "getCardStatus", []);
+};
+
 ACS.prototype.startScan = function (success, failure) {
   cordova.exec(success, failure, "Acs", "startScan", []);
 };
