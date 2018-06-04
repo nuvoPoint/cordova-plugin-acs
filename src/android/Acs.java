@@ -52,6 +52,7 @@ public class Acs extends CordovaPlugin {
     private static final String START_POLLING = "startPolling";
     private static final String STOP_POLLING = "stopPolling";
     private static final String LISTEN_FOR_ESCAPE_RESPONSE = "listenForEscapeResponse";
+    private static final String TRANSMIT_TEST = "transmitTest";
 
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -175,6 +176,10 @@ public class Acs extends CordovaPlugin {
         }
         if (action.equalsIgnoreCase(LISTEN_FOR_ESCAPE_RESPONSE)) {
             cordova.getThreadPool().execute(() -> this.setListenForEscapeResponse(callbackContext));
+            return true;
+        }
+        if (action.equalsIgnoreCase(TRANSMIT_TEST)) {
+            cordova.getThreadPool().execute(() -> this.requestId(callbackContext));
             return true;
         }
         if (action.equalsIgnoreCase(GET_CARD_STATUS)) {
@@ -404,6 +409,12 @@ public class Acs extends CordovaPlugin {
         this.mBluetoothReader.setOnResponseApduAvailableListener(null);
     }
 
+    private void requestId(final CallbackContext callbackContext){
+        byte[] sendBuffer = new byte[]{(byte) 0xFF, (byte) 0xCA, (byte) 0x0, (byte) 0x0, (byte) 0x0};
+
+        boolean why = this.mBluetoothReader.transmitApdu(sendBuffer);
+        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, why));
+    }
 
     private void setListenForEscapeResponse(final CallbackContext callbackContext) {
         mBluetoothReader.setOnEscapeResponseAvailableListener((BluetoothReader bluetoothReader, final byte[] response, int errorCode) -> {
@@ -413,6 +424,16 @@ public class Acs extends CordovaPlugin {
             pluginRes.setKeepCallback(true);
             callbackContext.sendPluginResult(pluginRes);
         });
+
+        mBluetoothReader.setOnAtrAvailableListener((BluetoothReader bluetoothReader, byte[] atr, int i) -> {
+            Gson gson = new Gson();
+            String resultStr = gson.toJson(atr);
+            PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
+            pluginRes.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginRes);
+        });
+
+        mBluetoothReader.transmitApdu()
     }
 
 }

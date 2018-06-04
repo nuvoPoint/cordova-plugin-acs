@@ -60,6 +60,11 @@ ACS.prototype.stopScan = function (success, failure) {
   cordova.exec(success, failure, "Acs", "stopScan", []);
 };
 
+ACS.prototype.transmitTest = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "transmitTest", []);
+};
+
+
 if (typeof module != 'undefined' && module.exports) {
     module.exports = ACS;
 }
