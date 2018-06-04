@@ -48,6 +48,10 @@ ACS.prototype.stopListeningForADPU = function (success, failure) {
   cordova.exec(success, failure, "Acs", "stopListeningForADPU", []);
 };
 
+ACS.prototype.listenForEscapeResponse = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "listenForEscapeResponse", []);
+};
+
 ACS.prototype.startScan = function (success, failure) {
   cordova.exec(success, failure, "Acs", "startScan", []);
 };

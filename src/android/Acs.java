@@ -51,6 +51,9 @@ public class Acs extends CordovaPlugin {
     private static final String AUTHENTICATE = "authenticate";
     private static final String START_POLLING = "startPolling";
     private static final String STOP_POLLING = "stopPolling";
+    private static final String LISTEN_FOR_ESCAPE_RESPONSE = "listenForEscapeResponse";
+
+
     private static final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_PERMISSION_ACCESS_FINE_LOCATION = 1;
     private final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION = 1;
@@ -108,10 +111,11 @@ public class Acs extends CordovaPlugin {
             String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
             ActivityCompat.requestPermissions(cordova.getActivity(), permissions, REQUEST_PERMISSION_ACCESS_COARSE_LOCATION);
         }
+
     }
 
 
-    private void authenticate() {
+    private void authenticate(CallbackContext callbackContext) {
         try {
             byte[] masterKey = this.DEFAULT_1255_MASTER_KEY.getBytes("UTF-8");
             boolean ass = this.mBluetoothReader.authenticate(masterKey);
@@ -122,7 +126,7 @@ public class Acs extends CordovaPlugin {
         }
     }
 
-    private void startPolling() {
+    private void startPolling(CallbackContext callbackContext) {
         boolean sad = this.mBluetoothReader.transmitEscapeCommand(AUTO_POLLING_START);
         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, sad));
     }
@@ -158,15 +162,19 @@ public class Acs extends CordovaPlugin {
             return true;
         }
         if (action.equalsIgnoreCase(AUTHENTICATE)) {
-            cordova.getThreadPool().execute(() -> this.authenticate());
+            cordova.getThreadPool().execute(() -> this.authenticate(callbackContext));
             return true;
         }
         if (action.equalsIgnoreCase(START_POLLING)) {
-            cordova.getThreadPool().execute(() -> this.startPolling());
+            cordova.getThreadPool().execute(() -> this.startPolling(callbackContext));
             return true;
         }
         if (action.equalsIgnoreCase(STOP_POLLING)) {
             cordova.getThreadPool().execute(() -> this.stopPolling());
+            return true;
+        }
+        if (action.equalsIgnoreCase(LISTEN_FOR_ESCAPE_RESPONSE)) {
+            cordova.getThreadPool().execute(() -> this.setListenForEscapeResponse(callbackContext));
             return true;
         }
         if (action.equalsIgnoreCase(GET_CARD_STATUS)) {
@@ -387,13 +395,24 @@ public class Acs extends CordovaPlugin {
             String resultStr = gson.toJson(apdu);
             PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
             pluginRes.setKeepCallback(true);
-            startScanCallbackContext.sendPluginResult(pluginRes);
+            callbackContext.sendPluginResult(pluginRes);
         });
     }
 
     private void stopListeningForADPU() {
         this.adpuContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "finished"));
         this.mBluetoothReader.setOnResponseApduAvailableListener(null);
+    }
+
+
+    private void setListenForEscapeResponse(final CallbackContext callbackContext) {
+        mBluetoothReader.setOnEscapeResponseAvailableListener((BluetoothReader bluetoothReader, final byte[] response, int errorCode) -> {
+            Gson gson = new Gson();
+            String resultStr = gson.toJson(response);
+            PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
+            pluginRes.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginRes);
+        });
     }
 
 }
