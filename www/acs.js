@@ -28,6 +28,14 @@ ACS.prototype.getConnectionStatus = function (success, failure) {
   cordova.exec(success, failure, "Acs", "getConnectionStatus", []);
 };
 
+ACS.prototype.authenticate = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "authenticate", []);
+};
+
+ACS.prototype.startPolling = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "startPolling", []);
+};
+
 ACS.prototype.getCardStatus = function (success, failure) {
   cordova.exec(success, failure, "Acs", "getCardStatus", []);
 };
