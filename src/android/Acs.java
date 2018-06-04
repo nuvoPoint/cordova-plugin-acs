@@ -118,7 +118,7 @@ public class Acs extends CordovaPlugin {
             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, ass));
 
         } catch (UnsupportedEncodingException e) {
-            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, e));
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, e.getMessage()));
         }
     }
 
