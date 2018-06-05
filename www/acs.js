@@ -24,33 +24,27 @@ ACS.prototype.connectReader = function (readerAddress, success, failure) {
   cordova.exec(success, failure, "Acs", "connectReader", [readerAddress]);
 };
 
-ACS.prototype.getConnectionStatus = function (success, failure) {
-  cordova.exec(success, failure, "Acs", "getConnectionStatus", []);
-};
-
 ACS.prototype.authenticate = function (success, failure) {
   cordova.exec(success, failure, "Acs", "authenticate", []);
 };
+
+ACS.prototype.SetADPUResponseCallback = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "SetADPUResponseCallback", []);
+};
+
+ACS.prototype.SetCardAvailableCallback = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "SetCardAvailableCallback", []);
+};
+
 
 ACS.prototype.startPolling = function (success, failure) {
   cordova.exec(success, failure, "Acs", "startPolling", []);
 };
 
-ACS.prototype.getCardStatus = function (success, failure) {
-  cordova.exec(success, failure, "Acs", "getCardStatus", []);
+ACS.prototype.stopPolling = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "stopPolling", []);
 };
 
-ACS.prototype.listenForADPU = function (success, failure) {
-  cordova.exec(success, failure, "Acs", "listenForADPU", []);
-};
-
-ACS.prototype.stopListeningForADPU = function (success, failure) {
-  cordova.exec(success, failure, "Acs", "stopListeningForADPU", []);
-};
-
-ACS.prototype.listenForEscapeResponse = function (success, failure) {
-  cordova.exec(success, failure, "Acs", "listenForEscapeResponse", []);
-};
 
 ACS.prototype.startScan = function (success, failure) {
   cordova.exec(success, failure, "Acs", "startScan", []);
@@ -60,8 +54,16 @@ ACS.prototype.stopScan = function (success, failure) {
   cordova.exec(success, failure, "Acs", "stopScan", []);
 };
 
-ACS.prototype.transmitTest = function (success, failure) {
-  cordova.exec(success, failure, "Acs", "transmitTest", []);
+ACS.prototype.getConnectionState = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "getConnectionState", []);
+};
+
+ACS.prototype.getCardStatus = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "getCardStatus", []);
+};
+
+ACS.prototype.requestCardId = function (success, failure) {
+  cordova.exec(success, failure, "Acs", "requestCardId", []);
 };
 
 
