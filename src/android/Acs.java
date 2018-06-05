@@ -35,8 +35,8 @@ import com.google.gson.Gson;
 public class Acs extends CordovaPlugin {
     private static final String CONNECT_READER = "connectReader";
     private static final String AUTHENTICATE = "authenticate";
-    private static final String SET_ADPU_RESPONSE_CALLBACK = "SetADPUResponseCallback";
-    private static final String SET_CARD_AVAILABLE_CALLBACK = "SetCardAvailableCallback";;
+    private static final String SET_ADPU_RESPONSE_CALLBACK = "setAdpuResponseCallback";
+    private static final String SET_CARD_AVAILABLE_CALLBACK = "setCardAvailableCallback";;
     private static final String START_POLLING = "startPolling";
     private static final String STOP_POLLING = "stopPolling";
     private static final String START_SCAN = "startScan";
