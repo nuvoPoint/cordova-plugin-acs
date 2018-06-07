@@ -35,8 +35,8 @@ import com.google.gson.Gson;
 public class Acs extends CordovaPlugin {
     private static final String CONNECT_READER = "connectReader";
     private static final String AUTHENTICATE = "authenticate";
-    private static final String SET_ADPU_RESPONSE_CALLBACK = "setAdpuResponseCallback";
-    private static final String SET_CARD_AVAILABLE_CALLBACK = "setCardAvailableCallback";;
+    private static final String LISTEN_FOR_ADPU_RESPONSE = "listenForAdpuResponse";
+    private static final String LISTEN_FOR_CARD_STATUS_AVAILABLE = "listenForCardStatusAvailable";;
     private static final String START_POLLING = "startPolling";
     private static final String STOP_POLLING = "stopPolling";
     private static final String START_SCAN = "startScan";
@@ -115,7 +115,7 @@ public class Acs extends CordovaPlugin {
         else if (action.equalsIgnoreCase(GET_CONNECTION_STATE)) {
             cordova.getThreadPool().execute(() -> getConnectionState(callbackContext));
         }
-        else if (action.equalsIgnoreCase(SET_ADPU_RESPONSE_CALLBACK)) {
+        else if (action.equalsIgnoreCase(LISTEN_FOR_ADPU_RESPONSE)) {
             adpuResponseCallbackContext = callbackContext;
         }
         else if (action.equalsIgnoreCase(AUTHENTICATE)) {
@@ -130,7 +130,7 @@ public class Acs extends CordovaPlugin {
         else if (action.equalsIgnoreCase(REQUEST_CARD_ID)) {
             cordova.getThreadPool().execute(() -> requestId());
         }
-        else if (action.equalsIgnoreCase(SET_CARD_AVAILABLE_CALLBACK)) {
+        else if (action.equalsIgnoreCase(LISTEN_FOR_CARD_STATUS_AVAILABLE)) {
             cardAvailableCallbackContext = callbackContext;
         }
         else if (action.equalsIgnoreCase(GET_CARD_STATUS)) {

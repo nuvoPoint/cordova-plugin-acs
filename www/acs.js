@@ -1,5 +1,3 @@
-var exec = require('cordova/exec');
-
 module.exports = {
     connectReader: function (readerAddress) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'connectReader', [readerAddress]));
@@ -7,11 +5,17 @@ module.exports = {
     authenticate: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'authenticate', []));
     },
-    SetAdpuResponseCallback: function () {
-        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'setAdpuResponseCallback', []));
+    listenForAdpuResponse: function () {
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'listenForAdpuResponse', []));
     },
-    SetCardAvailableCallback: function () {
-        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'setCardAvailableCallback', []));
+    listenForCardStatusAvailable: function () {
+        const ass = (failure, success) => {
+            cordova.exec('Acs', 'listenForCardStatusAvailable', [], failure, success);
+        };
+
+        const setCard = bindNodeCallback(ass);
+
+        return defer(() => setCard());
     },
     startPolling: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'startPolling', []));
