@@ -1,3 +1,6 @@
+const bindNodeCallback = require('rxjs').bindNodeCallback;
+const defer = require('rxjs').defer;
+
 module.exports = {
     connectReader: function (readerAddress) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'connectReader', [readerAddress]));
@@ -24,24 +27,24 @@ module.exports = {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopPolling', []));
     },
     startScan: function () {
-            const ass = (failure, success) => {
-                cordova.exec('Acs', 'startScan', [], failure, success);
-            };
+        const ass = (failure, success) => {
+            cordova.exec('Acs', 'startScan', success, failure, []);
+        };
 
-            const setCard = bindNodeCallback(ass);
+        const setCard = bindNodeCallback(ass);
 
-            return defer(() => setCard());
+        return defer(() => setCard());
     },
-    stopScan: function() {
+    stopScan: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopScan', []));
     },
-    getConnectionState: function (){
+    getConnectionState: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'getConnectionState', []));
     },
-    getCardStatus: function (){
+    getCardStatus: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'getCardStatus', []));
     },
-    requestCardId: function (){
+    requestCardId: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'requestCardId', []));
     },
 }

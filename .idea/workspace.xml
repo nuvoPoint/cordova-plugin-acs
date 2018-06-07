@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8eeb5460-9fa5-418a-80c7-e81373a0baa8" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/www/acs.js" afterPath="$PROJECT_DIR$/www/acs.js" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -13,11 +14,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="acs.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="acs.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/www/acs.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+            <state relative-caret-position="17">
+              <caret line="1" column="36" lean-forward="false" selection-start-line="1" selection-start-column="36" selection-end-line="1" selection-end-column="36" />
               <folding />
             </state>
           </provider>
@@ -66,11 +67,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="acs.d.ts" pinned="false" current-in-tab="true">
+      <file leaf-file-name="acs.d.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/acs.d.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="34" />
+            <state relative-caret-position="85">
+              <caret line="5" column="50" lean-forward="false" selection-start-line="5" selection-start-column="50" selection-end-line="5" selection-end-column="50" />
               <folding />
             </state>
           </provider>
@@ -124,10 +125,10 @@
         <option value="$PROJECT_DIR$/src/gson.gradle" />
         <option value="$PROJECT_DIR$/src/acs.gradle" />
         <option value="$PROJECT_DIR$/plugin.xml" />
-        <option value="$PROJECT_DIR$/www/acs.js" />
         <option value="$PROJECT_DIR$/src/android/Acs.java" />
         <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/www/acs.d.ts" />
+        <option value="$PROJECT_DIR$/www/acs.js" />
       </list>
     </option>
   </component>
@@ -177,7 +178,7 @@
     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
     <property name="settings.editor.selected.configurable" value="http.proxy" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../tillty/platforms/android" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1528373185957" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1528375291522" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -879,14 +880,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/www/acs.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/android/Acs.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1751">
@@ -908,8 +901,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/www/acs.d.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="34" />
+        <state relative-caret-position="85">
+          <caret line="5" column="50" lean-forward="false" selection-start-line="5" selection-start-column="50" selection-end-line="5" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/acs.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="36" lean-forward="false" selection-start-line="1" selection-start-column="36" selection-end-line="1" selection-end-column="36" />
           <folding />
         </state>
       </provider>
