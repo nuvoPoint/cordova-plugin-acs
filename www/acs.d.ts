@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 declare module 'cordova-plugin-acs' {
     export function connectReader(readerAddress: string): Promise<void>;
 
