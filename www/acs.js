@@ -13,7 +13,7 @@ module.exports = {
     },
     listenForCardStatusAvailable: function () {
         const ass = (failure, success) => {
-            cordova.exec('Acs', 'listenForCardStatusAvailable', [], failure, success);
+            cordova.exec(success, failure, 'Acs', 'listenForCardStatusAvailable', []);
         };
 
         const setCard = bindNodeCallback(ass);
@@ -28,7 +28,7 @@ module.exports = {
     },
     startScan: function () {
         const ass = (failure, success) => {
-            cordova.exec('Acs', 'startScan', success, failure, []);
+            cordova.exec(success, failure, 'Acs', 'startScan', []);
         };
 
         const setCard = bindNodeCallback(ass);
