@@ -3,6 +3,7 @@
   "description": "Cordova plugin for advanced card systems(ACS) NFC reader.",
   "author": "nuvopoint",
   "license": "MIT",
+  "module": "./www/acs.js",
   "version": "0.0.5",
   "homepage": "https://github.com/Eonfire/cordova-plugin-acs/",
   "repository": {
@@ -29,6 +30,7 @@
       "version": ">=6.0.0"
     }
   ],
+  "typings": "./www/acs.d.ts",
   "scripts": {
     "lint": "eslint **/*.js",
     "cordova-paramedic": "cordova-paramedic",
