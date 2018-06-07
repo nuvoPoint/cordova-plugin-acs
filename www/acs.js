@@ -24,7 +24,13 @@ module.exports = {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopPolling', []));
     },
     startScan: function () {
-        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'startScan', []));
+            const ass = (failure, success) => {
+                cordova.exec('Acs', 'startScan', [], failure, success);
+            };
+
+            const setCard = bindNodeCallback(ass);
+
+            return defer(() => setCard());
     },
     stopScan: function() {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopScan', []));

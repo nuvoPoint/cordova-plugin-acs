@@ -5,7 +5,7 @@ declare module 'cordova-plugin-acs' {
 
     export function authenticate(): Promise<void>;
 
-    export function listenForAdpuResponse(): Promise<void>;
+    export function listenForAdpuResponse(): Observable<any>;
 
     export function listenForCardStatusAvailable(): Promise<void>;
 
