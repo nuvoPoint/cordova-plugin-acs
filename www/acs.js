@@ -17,8 +17,8 @@ module.exports = {
     stopPolling: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopPolling', []));
     },
-    startScan: function () {
-        cordova.exec(success, failure, 'Acs', 'startScan', []);
+    startScan: function (resolve, reject) {
+        cordova.exec(resolve, reject, 'Acs', 'startScan', []);
     },
     stopScan: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopScan', []));
