@@ -6,10 +6,10 @@ module.exports = {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'authenticate', []));
     },
     listenForAdpuResponse: function (resolve, reject) {
-        return cordova.exec(resolve, reject, 'Acs', 'listenForAdpuResponse', []));
+        cordova.exec(resolve, reject, 'Acs', 'listenForAdpuResponse', []);
     },
     listenForCardStatusAvailable: function (resolve, reject) {
-        return cordova.exec(resolve, reject, 'Acs', 'listenForCardStatusAvailable', [])
+        cordova.exec(resolve, reject, 'Acs', 'listenForCardStatusAvailable', [])
     },
     startPolling: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'startPolling', []));
@@ -18,7 +18,7 @@ module.exports = {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopPolling', []));
     },
     startScan: function () {
-        return cordova.exec(success, failure, 'Acs', 'startScan', []);
+        cordova.exec(success, failure, 'Acs', 'startScan', []);
     },
     stopScan: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopScan', []));
