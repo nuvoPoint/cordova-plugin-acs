@@ -16,7 +16,6 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -24,8 +23,8 @@ import org.apache.cordova.PluginResult;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.io.UnsupportedEncodingException;
 
 import org.json.JSONArray;
 
@@ -36,7 +35,8 @@ public class Acs extends CordovaPlugin {
     private static final String CONNECT_READER = "connectReader";
     private static final String AUTHENTICATE = "authenticate";
     private static final String LISTEN_FOR_ADPU_RESPONSE = "listenForAdpuResponse";
-    private static final String LISTEN_FOR_CARD_STATUS_AVAILABLE = "listenForCardStatusAvailable";;
+    private static final String LISTEN_FOR_CARD_STATUS_AVAILABLE = "listenForCardStatusAvailable";
+
     private static final String START_POLLING = "startPolling";
     private static final String STOP_POLLING = "stopPolling";
     private static final String START_SCAN = "startScan";
@@ -50,7 +50,7 @@ public class Acs extends CordovaPlugin {
     private static final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION = 1;
 
-    private static final byte[] DEFAULT_1255_MASTER_KEY = new byte[] {65, 67, 82, 49, 50, 53, 53, 85, 45, 74, 49, 32, 65, 117, 116, 104};
+    private static final byte[] DEFAULT_1255_MASTER_KEY = new byte[]{65, 67, 82, 49, 50, 53, 53, 85, 45, 74, 49, 32, 65, 117, 116, 104};
     private static final byte[] DEFAULT_REQUEST_CARD_ID = new byte[]{(byte) 0xFF, (byte) 0xCA, (byte) 0x0, (byte) 0x0, (byte) 0x0};
     private static final byte[] AUTO_POLLING_START = {(byte) 0xE0, 0x00, 0x00, 0x40, 0x01};
     private static final byte[] AUTO_POLLING_STOP = {(byte) 0xE0, 0x00, 0x00, 0x40, 0x00};
@@ -71,6 +71,7 @@ public class Acs extends CordovaPlugin {
     private Handler mHandler;
     private static final long SCAN_PERIOD = 10000;
     private int connectionState;
+    private ArrayList<BTScanResult> foundDevices;
 
     // Idk
     private CallbackContext startScanCallbackContext;
@@ -105,35 +106,25 @@ public class Acs extends CordovaPlugin {
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) {
         if (action.equalsIgnoreCase(CONNECT_READER)) {
             cordova.getThreadPool().execute(() -> connectReader(callbackContext, data));
-        }
-        else if (action.equalsIgnoreCase(START_SCAN)) {
+        } else if (action.equalsIgnoreCase(START_SCAN)) {
             cordova.getThreadPool().execute(() -> startScan(callbackContext));
-        }
-        else if (action.equalsIgnoreCase(STOP_SCAN)) {
+        } else if (action.equalsIgnoreCase(STOP_SCAN)) {
             cordova.getThreadPool().execute(() -> stopScan());
-        }
-        else if (action.equalsIgnoreCase(GET_CONNECTION_STATE)) {
+        } else if (action.equalsIgnoreCase(GET_CONNECTION_STATE)) {
             cordova.getThreadPool().execute(() -> getConnectionState(callbackContext));
-        }
-        else if (action.equalsIgnoreCase(LISTEN_FOR_ADPU_RESPONSE)) {
+        } else if (action.equalsIgnoreCase(LISTEN_FOR_ADPU_RESPONSE)) {
             adpuResponseCallbackContext = callbackContext;
-        }
-        else if (action.equalsIgnoreCase(AUTHENTICATE)) {
+        } else if (action.equalsIgnoreCase(AUTHENTICATE)) {
             cordova.getThreadPool().execute(() -> authenticate(callbackContext));
-        }
-        else if (action.equalsIgnoreCase(START_POLLING)) {
+        } else if (action.equalsIgnoreCase(START_POLLING)) {
             cordova.getThreadPool().execute(() -> startPolling(callbackContext));
-        }
-        else if (action.equalsIgnoreCase(STOP_POLLING)) {
+        } else if (action.equalsIgnoreCase(STOP_POLLING)) {
             cordova.getThreadPool().execute(() -> stopPolling(callbackContext));
-        }
-        else if (action.equalsIgnoreCase(REQUEST_CARD_ID)) {
+        } else if (action.equalsIgnoreCase(REQUEST_CARD_ID)) {
             cordova.getThreadPool().execute(() -> requestId());
-        }
-        else if (action.equalsIgnoreCase(LISTEN_FOR_CARD_STATUS_AVAILABLE)) {
+        } else if (action.equalsIgnoreCase(LISTEN_FOR_CARD_STATUS_AVAILABLE)) {
             cardAvailableCallbackContext = callbackContext;
-        }
-        else if (action.equalsIgnoreCase(GET_CARD_STATUS)) {
+        } else if (action.equalsIgnoreCase(GET_CARD_STATUS)) {
             cordova.getThreadPool().execute(() -> getCardStatus(callbackContext));
         } else {
             return false;
@@ -168,6 +159,8 @@ public class Acs extends CordovaPlugin {
             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Scan already in progress"));
             return;
         }
+
+        foundDevices = new ArrayList<BTScanResult>();
 
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
@@ -204,21 +197,11 @@ public class Acs extends CordovaPlugin {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             Gson gson = new Gson();
-            try {
-                String resultStr = gson.toJson(result);
-                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
-                pluginRes.setKeepCallback(true);
-                startScanCallbackContext.sendPluginResult(pluginRes);
-            } catch (Throwable e) {
-            }
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-            Gson gson = new Gson();
-            for (ScanResult sr : results) {
+            String resultStr = gson.toJson(result);
+            BTScanResult resultBt = gson.fromJson(resultStr, BTScanResult.class);
+            if (!checkIfAlreadyAdded(resultBt)) {
                 try {
-                    String resultStr = gson.toJson(sr);
+                    foundDevices.add(resultBt);
                     PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
                     pluginRes.setKeepCallback(true);
                     startScanCallbackContext.sendPluginResult(pluginRes);
@@ -228,10 +211,39 @@ public class Acs extends CordovaPlugin {
         }
 
         @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            Gson gson = new Gson();
+            for (ScanResult sr : results) {
+                String resultStr = gson.toJson(sr);
+                BTScanResult resultBt = gson.fromJson(resultStr, BTScanResult.class);
+                if(!checkIfAlreadyAdded(resultBt)){
+                    try {
+                        foundDevices.add(resultBt);
+                        PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
+                        pluginRes.setKeepCallback(true);
+                        startScanCallbackContext.sendPluginResult(pluginRes);
+                    } catch (Throwable e) {
+                    }
+                }
+            }
+        }
+
+        @Override
         public void onScanFailed(int errorCode) {
             startScanCallbackContext.error(errorCode);
         }
     };
+
+    private boolean checkIfAlreadyAdded(BTScanResult toCheck) {
+        boolean found = false;
+        for (BTScanResult temp : foundDevices) {
+            found = temp.mDevice.mAddress.equals(toCheck.mDevice.mAddress);
+            if (found){
+                break;
+            }
+        }
+        return found;
+    }
 
 
     private void connectReader(final CallbackContext callbackContext, JSONArray data) {
@@ -254,7 +266,7 @@ public class Acs extends CordovaPlugin {
             // Reinitialize BluetoothReaderManager Listeners
             initializeBluetoothReaderManagerListeners();
 
-            // Get the device by it's address and connect to it with the callBack
+// Get the device by it's address and connect to it with the callBack
             final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(myDeviceAddress);
             mBluetoothGatt = device.connectGatt(cordova.getContext(), false, mGattCallback);
         } catch (Exception e) {
@@ -309,7 +321,7 @@ public class Acs extends CordovaPlugin {
         });
 
         mBluetoothReader.setOnResponseApduAvailableListener((BluetoothReader bluetoothReader, byte[] apdu, int errorCode) -> {
-            if(adpuResponseCallbackContext != null){
+            if (adpuResponseCallbackContext != null) {
                 PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, bytesToHex(apdu));
                 pluginRes.setKeepCallback(true);
                 adpuResponseCallbackContext.sendPluginResult(pluginRes);
@@ -351,5 +363,13 @@ public class Acs extends CordovaPlugin {
         }
         return new String(hexChars);
     }
-
 }
+
+class BTScanResult {
+    public BTScanResultDevice mDevice;
+}
+
+class BTScanResultDevice {
+    public String mAddress;
+}
+
