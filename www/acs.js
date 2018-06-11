@@ -1,6 +1,3 @@
-const bindNodeCallback = require('rxjs').bindNodeCallback;
-const defer = require('rxjs').defer;
-
 module.exports = {
     connectReader: function (readerAddress) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'connectReader', [readerAddress]));
@@ -8,17 +5,11 @@ module.exports = {
     authenticate: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'authenticate', []));
     },
-    listenForAdpuResponse: function () {
-        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'listenForAdpuResponse', []));
+    listenForAdpuResponse: function (resolve, reject) {
+        return cordova.exec(resolve, reject, 'Acs', 'listenForAdpuResponse', []));
     },
-    listenForCardStatusAvailable: function () {
-        const ass = (failure, success) => {
-            cordova.exec(success, failure, 'Acs', 'listenForCardStatusAvailable', []);
-        };
-
-        const setCard = bindNodeCallback(ass);
-
-        return defer(() => setCard());
+    listenForCardStatusAvailable: function (resolve, reject) {
+        return cordova.exec(resolve, reject, 'Acs', 'listenForCardStatusAvailable', [])
     },
     startPolling: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'startPolling', []));
@@ -27,13 +18,7 @@ module.exports = {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopPolling', []));
     },
     startScan: function () {
-        const ass = (failure, success) => {
-            cordova.exec(success, failure, 'Acs', 'startScan', []);
-        };
-
-        const setCard = bindNodeCallback(ass);
-
-        return defer(() => setCard());
+        return cordova.exec(success, failure, 'Acs', 'startScan', []);
     },
     stopScan: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopScan', []));
