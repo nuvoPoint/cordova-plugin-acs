@@ -3,9 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="8eeb5460-9fa5-418a-80c7-e81373a0baa8" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/src/android/Acs.java" afterPath="$PROJECT_DIR$/src/android/Acs.java" />
-      <change beforePath="$PROJECT_DIR$/www/acs.d.ts" afterPath="$PROJECT_DIR$/www/acs.d.ts" />
-      <change beforePath="$PROJECT_DIR$/www/acs.js" afterPath="$PROJECT_DIR$/www/acs.js" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -19,8 +16,8 @@
       <file leaf-file-name="acs.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/acs.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="663">
-              <caret line="39" column="6" lean-forward="false" selection-start-line="39" selection-start-column="6" selection-end-line="39" selection-end-column="6" />
+            <state relative-caret-position="68">
+              <caret line="16" column="8" lean-forward="false" selection-start-line="16" selection-start-column="8" selection-end-line="16" selection-end-column="8" />
               <folding />
             </state>
           </provider>
@@ -29,14 +26,14 @@
       <file leaf-file-name="Acs.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/android/Acs.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="473">
-              <caret line="400" column="0" lean-forward="false" selection-start-line="400" selection-start-column="0" selection-end-line="400" selection-end-column="0" />
+            <state relative-caret-position="-1496">
+              <caret line="143" column="37" lean-forward="false" selection-start-line="143" selection-start-column="8" selection-end-line="143" selection-end-column="37" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#11576#11577#0" expanded="true" />
-                <element signature="e#11641#11642#0" expanded="true" />
-                <element signature="e#16741#16742#0" expanded="true" />
-                <element signature="e#16811#16812#0" expanded="true" />
+                <element signature="e#11799#11800#0" expanded="true" />
+                <element signature="e#11864#11865#0" expanded="true" />
+                <element signature="e#17427#17428#0" expanded="true" />
+                <element signature="e#17497#17498#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -75,8 +72,8 @@
       <file leaf-file-name="acs.d.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/acs.d.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="9" column="4" lean-forward="false" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
+            <state relative-caret-position="136">
+              <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -131,9 +128,9 @@
         <option value="$PROJECT_DIR$/src/acs.gradle" />
         <option value="$PROJECT_DIR$/plugin.xml" />
         <option value="$PROJECT_DIR$/package.json" />
+        <option value="$PROJECT_DIR$/src/android/Acs.java" />
         <option value="$PROJECT_DIR$/www/acs.d.ts" />
         <option value="$PROJECT_DIR$/www/acs.js" />
-        <option value="$PROJECT_DIR$/src/android/Acs.java" />
       </list>
     </option>
   </component>
@@ -195,7 +192,7 @@
     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
     <property name="settings.editor.selected.configurable" value="http.proxy" />
     <property name="last_opened_file_path" value="$USER_HOME$/Desktop/ACS_BT_EVK_Android-1.01/Sample Code" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1528877647286" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1528878069673" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -573,10 +570,10 @@
           <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11576#11577#0" expanded="true" />
-            <element signature="e#11641#11642#0" expanded="true" />
-            <element signature="e#16741#16742#0" expanded="true" />
-            <element signature="e#16811#16812#0" expanded="true" />
+            <element signature="e#11799#11800#0" expanded="true" />
+            <element signature="e#11864#11865#0" expanded="true" />
+            <element signature="e#17427#17428#0" expanded="true" />
+            <element signature="e#17497#17498#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -635,10 +632,10 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11576#11577#0" expanded="true" />
-            <element signature="e#11641#11642#0" expanded="true" />
-            <element signature="e#16741#16742#0" expanded="true" />
-            <element signature="e#16811#16812#0" expanded="true" />
+            <element signature="e#11799#11800#0" expanded="true" />
+            <element signature="e#11864#11865#0" expanded="true" />
+            <element signature="e#17427#17428#0" expanded="true" />
+            <element signature="e#17497#17498#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -697,10 +694,10 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11576#11577#0" expanded="true" />
-            <element signature="e#11641#11642#0" expanded="true" />
-            <element signature="e#16741#16742#0" expanded="true" />
-            <element signature="e#16811#16812#0" expanded="true" />
+            <element signature="e#11799#11800#0" expanded="true" />
+            <element signature="e#11864#11865#0" expanded="true" />
+            <element signature="e#17427#17428#0" expanded="true" />
+            <element signature="e#17497#17498#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -759,10 +756,10 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11576#11577#0" expanded="true" />
-            <element signature="e#11641#11642#0" expanded="true" />
-            <element signature="e#16741#16742#0" expanded="true" />
-            <element signature="e#16811#16812#0" expanded="true" />
+            <element signature="e#11799#11800#0" expanded="true" />
+            <element signature="e#11864#11865#0" expanded="true" />
+            <element signature="e#17427#17428#0" expanded="true" />
+            <element signature="e#17497#17498#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -821,10 +818,10 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11576#11577#0" expanded="true" />
-            <element signature="e#11641#11642#0" expanded="true" />
-            <element signature="e#16741#16742#0" expanded="true" />
-            <element signature="e#16811#16812#0" expanded="true" />
+            <element signature="e#11799#11800#0" expanded="true" />
+            <element signature="e#11864#11865#0" expanded="true" />
+            <element signature="e#17427#17428#0" expanded="true" />
+            <element signature="e#17497#17498#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -835,10 +832,10 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11576#11577#0" expanded="true" />
-            <element signature="e#11641#11642#0" expanded="true" />
-            <element signature="e#16741#16742#0" expanded="true" />
-            <element signature="e#16811#16812#0" expanded="true" />
+            <element signature="e#11799#11800#0" expanded="true" />
+            <element signature="e#11864#11865#0" expanded="true" />
+            <element signature="e#17427#17428#0" expanded="true" />
+            <element signature="e#17497#17498#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -926,30 +923,30 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/www/acs.d.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="4" lean-forward="false" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
+        <state relative-caret-position="136">
+          <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/www/acs.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="39" column="6" lean-forward="false" selection-start-line="39" selection-start-column="6" selection-end-line="39" selection-end-column="6" />
+        <state relative-caret-position="68">
+          <caret line="16" column="8" lean-forward="false" selection-start-line="16" selection-start-column="8" selection-end-line="16" selection-end-column="8" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/android/Acs.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="473">
-          <caret line="400" column="0" lean-forward="false" selection-start-line="400" selection-start-column="0" selection-end-line="400" selection-end-column="0" />
+        <state relative-caret-position="-1496">
+          <caret line="143" column="37" lean-forward="false" selection-start-line="143" selection-start-column="8" selection-end-line="143" selection-end-column="37" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11576#11577#0" expanded="true" />
-            <element signature="e#11641#11642#0" expanded="true" />
-            <element signature="e#16741#16742#0" expanded="true" />
-            <element signature="e#16811#16812#0" expanded="true" />
+            <element signature="e#11799#11800#0" expanded="true" />
+            <element signature="e#11864#11865#0" expanded="true" />
+            <element signature="e#17427#17428#0" expanded="true" />
+            <element signature="e#17497#17498#0" expanded="true" />
           </folding>
         </state>
       </provider>

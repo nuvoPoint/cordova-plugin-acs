@@ -14,7 +14,7 @@ module.exports = {
     listenForCardStatusAvailable: function (resolve, reject) {
         return cordova.exec(resolve, reject, 'Acs', 'listenForCardStatusAvailable', [])
     },
-        listenForConnectionState: function () {
+        listenForConnectionState: function (resolve, reject) {
          return cordova.exec(resolve, reject, 'Acs', 'listenForConnectionState', [])
         },
     startPolling: function () {

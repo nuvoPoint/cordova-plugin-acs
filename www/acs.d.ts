@@ -9,7 +9,7 @@ declare module 'cordova-plugin-acs' {
 
     export function listenForCardStatusAvailable(resolve, reject): void;
 
-    export function listenForConnectionState(): void;
+    export function listenForConnectionState(resolve, reject): void;
 
     export function startPolling(): Promise<void>;
 
