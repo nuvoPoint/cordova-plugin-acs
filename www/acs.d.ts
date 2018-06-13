@@ -3,7 +3,7 @@ declare module 'cordova-plugin-acs' {
 
     export function disconnectReader(): Promise<void>;
 
-    export function enableNotifications(): Pormise<void>;
+    export function enableNotifications(): Promise<void>;
 
     export function authenticate(): Promise<void>;
 
