@@ -44,7 +44,7 @@ public class Acs extends CordovaPlugin {
     private static final String START_SCAN = "startScan";
     private static final String STOP_SCAN = "stopScan";
     private static final String REQUEST_CARD_ID = "requestCardId";
-    private static final String REQUEST_TURN_OFF_SLEEP_MODE = "turnOffSleepMode";
+    private static final String REQUEST_TURN_OFF_SLEEP_MODE = "requestTurnOffSleepMode";
 
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -132,7 +132,7 @@ public class Acs extends CordovaPlugin {
         } else if (action.equalsIgnoreCase(REQUEST_CARD_ID)) {
             cordova.getThreadPool().execute(() -> requestId(callbackContext));
         } else if (action.equalsIgnoreCase(REQUEST_TURN_OFF_SLEEP_MODE)) {
-            cordova.getThreadPool().execute(() -> turnOffSleepMode());
+            cordova.getThreadPool().execute(() -> requestTurnOffSleepMode());
         } else {
             return false;
         }
@@ -403,7 +403,7 @@ public class Acs extends CordovaPlugin {
         callbackContext.success(Boolean.toString(result));
     }
 
-    private void turnOffSleepMode(){
+    private void requestTurnOffSleepMode(){
         mBluetoothReader.transmitApdu(TURN_OFF_SLEEP_MODE);
 
     }
