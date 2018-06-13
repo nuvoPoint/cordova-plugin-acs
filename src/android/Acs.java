@@ -33,18 +33,19 @@ import com.google.gson.Gson;
 
 public class Acs extends CordovaPlugin {
     private static final String CONNECT_READER = "connectReader";
+    private static final String DISCONNECT_READER = "disconnectReader";
     private static final String AUTHENTICATE = "authenticate";
     private static final String LISTEN_FOR_ADPU_RESPONSE = "listenForAdpuResponse";
     private static final String LISTEN_FOR_CARD_STATUS_AVAILABLE = "listenForCardStatusAvailable";
     private static final String LISTEN_FOR_CONNECTION_STATE = "listenForConnectionState";
-
     private static final String START_POLLING = "startPolling";
     private static final String STOP_POLLING = "stopPolling";
     private static final String START_SCAN = "startScan";
     private static final String STOP_SCAN = "stopScan";
-
     private static final String REQUEST_CARD_ID = "requestCardId";
     private static final String GET_CARD_STATUS = "getCardStatus";
+    private static final String POWER_ON_CARD = "powerOnCard";
+    private static final String POWER_OFF_CARD = "powerOffCard";
 
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -106,6 +107,8 @@ public class Acs extends CordovaPlugin {
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) {
         if (action.equalsIgnoreCase(CONNECT_READER)) {
             cordova.getThreadPool().execute(() -> connectReader(callbackContext, data));
+        } else if (action.equalsIgnoreCase(DISCONNECT_READER)) {
+            cordova.getThreadPool().execute(() -> disconnectReader(callbackContext));
         } else if (action.equalsIgnoreCase(START_SCAN)) {
             cordova.getThreadPool().execute(() -> startScan(callbackContext));
         } else if (action.equalsIgnoreCase(STOP_SCAN)) {
@@ -124,6 +127,10 @@ public class Acs extends CordovaPlugin {
             cordova.getThreadPool().execute(() -> requestId());
         } else if (action.equalsIgnoreCase(LISTEN_FOR_CARD_STATUS_AVAILABLE)) {
             cardAvailableCallbackContext = callbackContext;
+        } else if (action.equalsIgnoreCase(POWER_OFF_CARD)) {
+            cordova.getThreadPool().execute(() -> powerOffCard(callbackContext));
+        } else if (action.equalsIgnoreCase(POWER_ON_CARD)) {
+            cordova.getThreadPool().execute(() -> powerOnCard(callbackContext));
         } else if (action.equalsIgnoreCase(GET_CARD_STATUS)) {
             cordova.getThreadPool().execute(() -> getCardStatus(callbackContext));
         } else {
@@ -146,6 +153,24 @@ public class Acs extends CordovaPlugin {
     private void stopPolling(CallbackContext callbackContext) {
         boolean result = mBluetoothReader.transmitEscapeCommand(AUTO_POLLING_STOP);
         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, result));
+    }
+
+    private void powerOnCard(CallbackContext callbackContext){
+        if(mBluetoothReader != null) {
+            boolean result = mBluetoothReader.powerOnCard();
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, result));
+        } else {
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "Reader doesn't exist"));
+        }
+    }
+
+    private void powerOffCard(CallbackContext callbackContext){
+        if(mBluetoothReader != null) {
+            boolean result = mBluetoothReader.powerOffCard();
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, result));
+        } else {
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "Reader doesn't exist"));
+        }
     }
 
 
@@ -274,6 +299,20 @@ public class Acs extends CordovaPlugin {
         }
     }
 
+    private void disconnectReader(final CallbackContext callbackContext){
+        if(mBluetoothReader != null) {
+            mBluetoothReader = null;
+            if (mBluetoothGatt != null) {
+                mBluetoothGatt.disconnect();
+                mBluetoothGatt.close();
+                mBluetoothGatt = null;
+            }
+            callbackContext.success();
+        }else{
+            callbackContext.error("No reader to disconnect");
+        }
+    }
+
 
     private void initializeGattCallbackListeners() {
         mGattCallback.setOnConnectionStateChangeListener((final BluetoothGatt gatt, final int state, final int newState) -> {
@@ -291,6 +330,7 @@ public class Acs extends CordovaPlugin {
                 mBluetoothReader = null;
                 // Release resources occupied by Bluetooth GATT client.
                 if (mBluetoothGatt != null) {
+                    mBluetoothGatt.disconnect();
                     mBluetoothGatt.close();
                     mBluetoothGatt = null;
                 }
@@ -300,10 +340,22 @@ public class Acs extends CordovaPlugin {
 
     private void initializeBluetoothReaderManagerListeners() {
         mBluetoothReaderManager.setOnReaderDetectionListener((BluetoothReader bluetoothReader) -> {
+
+            if (!(bluetoothReader instanceof Acr1255uj1Reader)) {
+                connectReaderCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Reader type not supported"));
+                mBluetoothReader = null;
+                if (mBluetoothGatt != null) {
+                    mBluetoothGatt.disconnect();
+                    mBluetoothGatt.close();
+                    mBluetoothGatt = null;
+                }
+                return;
+            }
+
             mBluetoothReader = bluetoothReader;
             mBluetoothReader.enableNotification(true);
             initializeBluetoothReaderListeners();
-            this.connectReaderCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "Connected"));
+            connectReaderCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "Connected"));
         });
     }
 

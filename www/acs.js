@@ -2,6 +2,9 @@ module.exports = {
     connectReader: function (readerAddress) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'connectReader', [readerAddress]));
     },
+    disconnectReader: function () {
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'disconnectReader', []));
+     },
     authenticate: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'authenticate', []));
     },
@@ -11,6 +14,9 @@ module.exports = {
     listenForCardStatusAvailable: function (resolve, reject) {
         return cordova.exec(resolve, reject, 'Acs', 'listenForCardStatusAvailable', [])
     },
+        listenForConnectionState: function () {
+         return cordova.exec(resolve, reject, 'Acs', 'listenForConnectionState', [])
+        },
     startPolling: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'startPolling', []));
     },
@@ -23,13 +29,16 @@ module.exports = {
     stopScan: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopScan', []));
     },
-    listenForConnectionState: function () {
-     return cordova.exec(resolve, reject, 'Acs', 'listenForConnectionState', [])
-    },
     getCardStatus: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'getCardStatus', []));
     },
     requestCardId: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'requestCardId', []));
+    },
+    powerOnCard:  function (){
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'powerOnCard', []));
+    },
+    powerOffCard:  function (){
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'powerOffCard', []));
     },
 }
