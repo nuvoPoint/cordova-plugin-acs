@@ -15,7 +15,7 @@ declare module 'cordova-plugin-acs' {
 
     export function stopScan(): Promise<void>;
 
-    export function getConnectionState(): Promise<void>;
+    export function listenForConnectionState(): void;
 
     export function getCardStatus(): Promise<void>;
 

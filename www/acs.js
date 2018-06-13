@@ -23,8 +23,8 @@ module.exports = {
     stopScan: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopScan', []));
     },
-    getConnectionState: function () {
-        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'getConnectionState', []));
+    listenForConnectionState: function () {
+     return cordova.exec(resolve, reject, 'Acs', 'listenForConnectionState', [])
     },
     getCardStatus: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'getCardStatus', []));

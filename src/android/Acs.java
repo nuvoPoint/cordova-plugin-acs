@@ -36,6 +36,7 @@ public class Acs extends CordovaPlugin {
     private static final String AUTHENTICATE = "authenticate";
     private static final String LISTEN_FOR_ADPU_RESPONSE = "listenForAdpuResponse";
     private static final String LISTEN_FOR_CARD_STATUS_AVAILABLE = "listenForCardStatusAvailable";
+    private static final String LISTEN_FOR_CONNECTION_STATE = "listenForConnectionState";
 
     private static final String START_POLLING = "startPolling";
     private static final String STOP_POLLING = "stopPolling";
@@ -44,7 +45,6 @@ public class Acs extends CordovaPlugin {
 
     private static final String REQUEST_CARD_ID = "requestCardId";
     private static final String GET_CARD_STATUS = "getCardStatus";
-    private static final String GET_CONNECTION_STATE = "getConnectionState";
 
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -70,15 +70,15 @@ public class Acs extends CordovaPlugin {
     private boolean mScanning;
     private Handler mHandler;
     private static final long SCAN_PERIOD = 10000;
-    private int connectionState;
     private ArrayList<BTScanResult> foundDevices;
 
-    // Idk
+    // Callback contexts
     private CallbackContext startScanCallbackContext;
     private CallbackContext connectReaderCallbackContext;
     private CallbackContext authenticationCallbackContext;
     private CallbackContext cardAvailableCallbackContext;
     private CallbackContext adpuResponseCallbackContext;
+    private CallbackContext connectionStateCallbackContext;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -110,8 +110,8 @@ public class Acs extends CordovaPlugin {
             cordova.getThreadPool().execute(() -> startScan(callbackContext));
         } else if (action.equalsIgnoreCase(STOP_SCAN)) {
             cordova.getThreadPool().execute(() -> stopScan());
-        } else if (action.equalsIgnoreCase(GET_CONNECTION_STATE)) {
-            cordova.getThreadPool().execute(() -> getConnectionState(callbackContext));
+        } else if (action.equalsIgnoreCase(LISTEN_FOR_CONNECTION_STATE)) {
+            connectionStateCallbackContext = callbackContext;
         } else if (action.equalsIgnoreCase(LISTEN_FOR_ADPU_RESPONSE)) {
             adpuResponseCallbackContext = callbackContext;
         } else if (action.equalsIgnoreCase(AUTHENTICATE)) {
@@ -216,7 +216,7 @@ public class Acs extends CordovaPlugin {
             for (ScanResult sr : results) {
                 String resultStr = gson.toJson(sr);
                 BTScanResult resultBt = gson.fromJson(resultStr, BTScanResult.class);
-                if(!checkIfAlreadyAdded(resultBt)){
+                if (!checkIfAlreadyAdded(resultBt)) {
                     try {
                         foundDevices.add(resultBt);
                         PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
@@ -238,7 +238,7 @@ public class Acs extends CordovaPlugin {
         boolean found = false;
         for (BTScanResult temp : foundDevices) {
             found = temp.mDevice.mAddress.equals(toCheck.mDevice.mAddress);
-            if (found){
+            if (found) {
                 break;
             }
         }
@@ -266,7 +266,7 @@ public class Acs extends CordovaPlugin {
             // Reinitialize BluetoothReaderManager Listeners
             initializeBluetoothReaderManagerListeners();
 
-// Get the device by it's address and connect to it with the callBack
+            // Get the device by it's address and connect to it with the callBack
             final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(myDeviceAddress);
             mBluetoothGatt = device.connectGatt(cordova.getContext(), false, mGattCallback);
         } catch (Exception e) {
@@ -277,12 +277,17 @@ public class Acs extends CordovaPlugin {
 
     private void initializeGattCallbackListeners() {
         mGattCallback.setOnConnectionStateChangeListener((final BluetoothGatt gatt, final int state, final int newState) -> {
-            connectionState = newState;
-            if (connectionState == BluetoothProfile.STATE_CONNECTED) {
+            if (connectionStateCallbackContext != null) {
+                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, newState);
+                pluginRes.setKeepCallback(true);
+                connectionStateCallbackContext.sendPluginResult(pluginRes);
+            }
+
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
                 if (mBluetoothReaderManager != null) {
                     mBluetoothReaderManager.detectReader(gatt, mGattCallback);
                 }
-            } else if (connectionState == BluetoothProfile.STATE_DISCONNECTED) {
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 mBluetoothReader = null;
                 // Release resources occupied by Bluetooth GATT client.
                 if (mBluetoothGatt != null) {
@@ -327,21 +332,6 @@ public class Acs extends CordovaPlugin {
                 adpuResponseCallbackContext.sendPluginResult(pluginRes);
             }
         });
-
-
-        mBluetoothReader.setOnCardPowerOffCompleteListener((BluetoothReader bluetoothReader, int result) -> {
-            // TODO: Show the power off card response.
-        });
-
-        mBluetoothReader.setOnCardStatusChangeListener((BluetoothReader bluetoothReader, int cardStatus) -> {
-            // TODO: Show the card status.
-        });
-
-    }
-
-
-    private void getConnectionState(final CallbackContext callbackContext) {
-        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, connectionState));
     }
 
     private void getCardStatus(final CallbackContext callbackContext) {
