@@ -35,4 +35,7 @@ module.exports = {
     requestCardId: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'requestCardId', []));
     },
+        requestTurnOffSleepMode: function () {
+            return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'requestTurnOffSleepMode', []));
+        },
 }

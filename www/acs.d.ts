@@ -22,4 +22,6 @@ declare module 'cordova-plugin-acs' {
     export function stopScan(): Promise<void>;
 
     export function requestCardId(): Promise<void>;
+
+    export function requestTurnOffSleepMode(): Promise<void>;
 }

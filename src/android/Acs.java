@@ -44,6 +44,7 @@ public class Acs extends CordovaPlugin {
     private static final String START_SCAN = "startScan";
     private static final String STOP_SCAN = "stopScan";
     private static final String REQUEST_CARD_ID = "requestCardId";
+    private static final String REQUEST_TURN_OFF_SLEEP_MODE = "turnOffSleepMode";
 
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -51,6 +52,7 @@ public class Acs extends CordovaPlugin {
 
     private static final byte[] DEFAULT_1255_MASTER_KEY = new byte[]{65, 67, 82, 49, 50, 53, 53, 85, 45, 74, 49, 32, 65, 117, 116, 104};
     private static final byte[] DEFAULT_REQUEST_CARD_ID = new byte[]{(byte) 0xFF, (byte) 0xCA, (byte) 0x0, (byte) 0x0, (byte) 0x0};
+    private static final byte[] TURN_OFF_SLEEP_MODE =  new byte[]{(byte) 0xE0, (byte) 0x00, (byte) 0x00, (byte) 0x48, (byte) 0x04};
     private static final byte[] AUTO_POLLING_START = {(byte) 0xE0, 0x00, 0x00, 0x40, 0x01};
     private static final byte[] AUTO_POLLING_STOP = {(byte) 0xE0, 0x00, 0x00, 0x40, 0x00};
 
@@ -74,9 +76,12 @@ public class Acs extends CordovaPlugin {
     // Callback contexts
     private CallbackContext startScanCallbackContext;
     private CallbackContext connectReaderCallbackContext;
+    private CallbackContext disconnectReaderCallbackContext;
     private CallbackContext cardStatusCallbackContext;
     private CallbackContext adpuResponseCallbackContext;
     private CallbackContext connectionStateCallbackContext;
+
+    private int currentState = BluetoothReader.STATE_DISCONNECTED;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -126,6 +131,8 @@ public class Acs extends CordovaPlugin {
             cordova.getThreadPool().execute(() -> stopPolling(callbackContext));
         } else if (action.equalsIgnoreCase(REQUEST_CARD_ID)) {
             cordova.getThreadPool().execute(() -> requestId(callbackContext));
+        } else if (action.equalsIgnoreCase(REQUEST_TURN_OFF_SLEEP_MODE)) {
+            cordova.getThreadPool().execute(() -> turnOffSleepMode());
         } else {
             return false;
         }
@@ -147,7 +154,10 @@ public class Acs extends CordovaPlugin {
             }
         });
 
-        mBluetoothReader.authenticate(DEFAULT_1255_MASTER_KEY);
+        boolean result = mBluetoothReader.authenticate(DEFAULT_1255_MASTER_KEY);
+        if(!result){
+            callbackContext.error("retry");
+        }
     }
 
     private void enableNotifications(CallbackContext callbackContext) {
@@ -283,12 +293,16 @@ public class Acs extends CordovaPlugin {
 
     private void connectReader(final CallbackContext callbackContext, JSONArray data) {
         try {
+            // Check for already existing connections
+            if(currentState != BluetoothReader.STATE_DISCONNECTED){
+                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Disconnect reader before connecting new one"));
+                return;
+            }
+
             // Get the device address
             String myDeviceAddress = data.getString(0);
             connectReaderCallbackContext = callbackContext;
 
-            // Remove any existing connections
-            closeGattConnection();
 
             // Create a new GATT Callback and initialize listeners
             mGattCallback = new BluetoothReaderGattCallback();
@@ -306,20 +320,24 @@ public class Acs extends CordovaPlugin {
     }
 
     private void disconnectReader(final CallbackContext callbackContext) {
-        if (mBluetoothReader != null) {
-            mBluetoothReader = null;
-            closeGattConnection();
-            callbackContext.success();
-        } else {
-            callbackContext.error("No reader to disconnect");
+        try {
+            if (mBluetoothGatt != null) {
+                disconnectReaderCallbackContext = callbackContext;
+                mBluetoothGatt.disconnect();
+            } else {
+                callbackContext.success();
+            }
+        } catch (Exception e) {
+            callbackContext.error(e.getMessage());
         }
     }
 
 
     private void initializeGattCallbackListeners() {
         mGattCallback.setOnConnectionStateChangeListener((final BluetoothGatt gatt, final int state, final int newState) -> {
+            currentState = newState;
             if (connectionStateCallbackContext != null) {
-                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, newState);
+                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, getConnectionStateJSON(newState));
                 pluginRes.setKeepCallback(true);
                 connectionStateCallbackContext.sendPluginResult(pluginRes);
             }
@@ -330,9 +348,13 @@ public class Acs extends CordovaPlugin {
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 mBluetoothReader = null;
-                if(mBluetoothGatt != null) {
+                if (mBluetoothGatt != null) {
                     mBluetoothGatt.close();
                     mBluetoothGatt = null;
+                }
+                if (disconnectReaderCallbackContext != null){
+                    disconnectReaderCallbackContext.success();
+                    disconnectReaderCallbackContext = null;
                 }
             }
         });
@@ -343,17 +365,18 @@ public class Acs extends CordovaPlugin {
             if (!(bluetoothReader instanceof Acr1255uj1Reader)) {
                 connectReaderCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Reader type not supported"));
                 mBluetoothReader = null;
-                closeGattConnection();
+                mBluetoothGatt.disconnect();
                 return;
             }
 
             mBluetoothReader = bluetoothReader;
             initializeBluetoothReaderListeners();
+            connectReaderCallbackContext.success();
         });
     }
 
     private void initializeBluetoothReaderListeners() {
-        mBluetoothReader.setOnCardStatusAvailableListener((BluetoothReader bluetoothReader, int cardStatus, int errorCode) -> {
+        mBluetoothReader.setOnCardStatusChangeListener((BluetoothReader bluetoothReader, int cardStatus) -> {
             if (cardStatusCallbackContext != null) {
                 PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, getCardStatusJSON(cardStatus));
                 pluginRes.setKeepCallback(true);
@@ -380,12 +403,9 @@ public class Acs extends CordovaPlugin {
         callbackContext.success(Boolean.toString(result));
     }
 
-    private void closeGattConnection(){
-        if (mBluetoothGatt != null) {
-            mBluetoothGatt.disconnect();
-            mBluetoothGatt.close();
-            mBluetoothGatt = null;
-        }
+    private void turnOffSleepMode(){
+        mBluetoothReader.transmitApdu(TURN_OFF_SLEEP_MODE);
+
     }
 
     private String getCardStatusJSON(int cardStatus) {
@@ -400,6 +420,20 @@ public class Acs extends CordovaPlugin {
             return gson.toJson(new StatusMessage(4, "Card is powered."));
         }
         return gson.toJson(new StatusMessage(0, "Card status is unknown."));
+    }
+
+    private String getConnectionStateJSON(int status) {
+        Gson gson = new Gson();
+        if (status == BluetoothReader.STATE_DISCONNECTED) {
+            return gson.toJson(new StatusMessage(1, "Disconnected"));
+        } else if (status == BluetoothReader.STATE_CONNECTED) {
+            return gson.toJson(new StatusMessage(2, "Connected."));
+        } else if (status == BluetoothReader.STATE_CONNECTING) {
+            return gson.toJson(new StatusMessage(3, "Connecting"));
+        } else if (status == BluetoothReader.STATE_DISCONNECTING) {
+            return gson.toJson(new StatusMessage(4, "Disconnecting"));
+        }
+        return gson.toJson(new StatusMessage(0, "Status unknown."));
     }
 
 
@@ -427,7 +461,7 @@ class StatusMessage {
     private int code;
     private String message;
 
-    StatusMessage(int code, String message){
+    StatusMessage(int code, String message) {
         this.code = code;
         this.message = message;
     }
