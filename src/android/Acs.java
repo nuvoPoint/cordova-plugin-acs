@@ -180,7 +180,7 @@ public class Acs extends CordovaPlugin {
         }
 
         try {
-            boolean result = mBluetoothReader.transmitApdu(data.getString(0).getBytes());
+            boolean result = mBluetoothReader.transmitApdu(toByteArray(data.getString(0)));
             if(!result){
                 callbackContext.error("Transmit ADPU command was unsuccessful");
             } else {
@@ -198,7 +198,7 @@ public class Acs extends CordovaPlugin {
         }
 
         try {
-            boolean result = mBluetoothReader.transmitEscapeCommand(data.getString(0).getBytes());
+            boolean result = mBluetoothReader.transmitEscapeCommand(toByteArray(data.getString(0)));
             if(!result){
                 callbackContext.error("Transmit Escape command was unsuccessful");
             } else {
@@ -470,6 +470,54 @@ public class Acs extends CordovaPlugin {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public static byte[] toByteArray(String hexString) {
+        int hexStringLength = hexString.length();
+        byte[] byteArray = null;
+        int count = 0;
+        char c;
+        int i;
+
+        // Count number of hex characters
+        for (i = 0; i < hexStringLength; i++) {
+
+            c = hexString.charAt(i);
+            if (c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a'
+                    && c <= 'f') {
+                count++;
+            }
+        }
+
+        byteArray = new byte[(count + 1) / 2];
+        boolean first = true;
+        int len = 0;
+        int value;
+        for (i = 0; i < hexStringLength; i++) {
+
+            c = hexString.charAt(i);
+            if (c >= '0' && c <= '9') {
+                value = c - '0';
+            } else if (c >= 'A' && c <= 'F') {
+                value = c - 'A' + 10;
+            } else if (c >= 'a' && c <= 'f') {
+                value = c - 'a' + 10;
+            } else {
+                value = -1;
+            }
+
+            if (value >= 0) {
+                if (first) {
+                    byteArray[len] = (byte) (value << 4);
+                } else {
+                    byteArray[len] |= value;
+                    len++;
+                }
+                first = !first;
+            }
+        }
+
+        return byteArray;
     }
 }
 
