@@ -405,17 +405,29 @@ public class Acs extends CordovaPlugin {
 
         mBluetoothReader.setOnResponseApduAvailableListener((BluetoothReader bluetoothReader, byte[] adpu, int errorCode) -> {
             if (adpuResponseCallbackContext != null) {
-                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, bytesToHex(adpu));
-                pluginRes.setKeepCallback(true);
-                adpuResponseCallbackContext.sendPluginResult(pluginRes);
+                if(adpu != null){
+                    PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, bytesToHex(adpu));
+                    pluginRes.setKeepCallback(true);
+                    adpuResponseCallbackContext.sendPluginResult(pluginRes);
+                } else {
+                    PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, errorCode);
+                    pluginRes.setKeepCallback(true);
+                    adpuResponseCallbackContext.sendPluginResult(pluginRes);
+                }
             }
         });
 
         mBluetoothReader.setOnEscapeResponseAvailableListener((BluetoothReader bluetoothReader, byte[] response, int errorCode) -> {
             if (escapeResponseCallbackContext != null) {
-                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, bytesToHex(response));
-                pluginRes.setKeepCallback(true);
-                escapeResponseCallbackContext.sendPluginResult(pluginRes);
+                if(response != null) {
+                    PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, bytesToHex(response));
+                    pluginRes.setKeepCallback(true);
+                    escapeResponseCallbackContext.sendPluginResult(pluginRes);
+                } else {
+                    PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, errorCode);
+                    pluginRes.setKeepCallback(true);
+                    escapeResponseCallbackContext.sendPluginResult(pluginRes);
+                }
             }
         });
     }
