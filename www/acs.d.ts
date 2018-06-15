@@ -7,23 +7,33 @@ declare module 'cordova-plugin-acs' {
 
     export function authenticate(): Promise<void>;
 
-    export function listenForAdpuResponse(resolve, reject): void;
+    export function listenForAdpuResponse(resolve, reject): String;
 
-    export function listenForEscapeResponse(resolve, reject): void;
+    export function listenForEscapeResponse(resolve, reject): String;
 
-    export function listenForCardStatus(resolve, reject): void;
+    export function listenForCardStatus(resolve, reject): StatusMessage;
 
-    export function listenForConnectionState(resolve, reject): void;
+    export function listenForConnectionState(resolve, reject): StatusMessage;
 
-    export function startPolling(): Promise<void>;
-
-    export function stopPolling(): Promise<void>;
-
-    export function startScan(resolve, reject): void;
+    export function startScan(resolve, reject): BTDevice;
 
     export function stopScan(): Promise<void>;
 
-    export function requestCardId(): Promise<void>;
+    export function transmitAdpuCommand(): Promise<void>;
 
-    export function requestTurnOffSleepMode(): Promise<void>;
+    export function transmitEscapeCommand(): Promise<void>;
 }
+
+export interface StatusMessage {
+    code: int;
+    message: String;
+}
+
+export interface BTDevice {
+    mDevice: {
+      mAddress: string;
+    };
+    mScanRecord: {
+      mDeviceName: string
+    };
+  }
