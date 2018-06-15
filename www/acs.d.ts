@@ -9,6 +9,8 @@ declare module 'cordova-plugin-acs' {
 
     export function listenForAdpuResponse(resolve, reject): void;
 
+    export function listenForEscapeResponse(resolve, reject): void;
+
     export function listenForCardStatus(resolve, reject): void;
 
     export function listenForConnectionState(resolve, reject): void;

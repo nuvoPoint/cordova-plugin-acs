@@ -14,6 +14,9 @@ module.exports = {
     listenForAdpuResponse: function (resolve, reject) {
         return cordova.exec(resolve, reject, 'Acs', 'listenForAdpuResponse', []);
     },
+        listenForEscapeResponse: function (resolve, reject) {
+            return cordova.exec(resolve, reject, 'Acs', 'listenForEscapeResponse', []);
+        },
     listenForCardStatus: function (resolve, reject) {
         return cordova.exec(resolve, reject, 'Acs', 'listenForCardStatus', [])
     },

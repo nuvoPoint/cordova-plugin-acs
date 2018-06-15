@@ -37,6 +37,7 @@ public class Acs extends CordovaPlugin {
     private static final String ENABLE_NOTIFICATIONS = "enableNotifications";
     private static final String AUTHENTICATE = "authenticate";
     private static final String LISTEN_FOR_ADPU_RESPONSE = "listenForAdpuResponse";
+    private static final String LISTEN_FOR_ESCAPE_RESPONSE = "listenForEscapeResponse";
     private static final String LISTEN_FOR_CARD_STATUS = "listenForCardStatus";
     private static final String LISTEN_FOR_CONNECTION_STATE = "listenForConnectionState";
     private static final String START_POLLING = "startPolling";
@@ -52,7 +53,7 @@ public class Acs extends CordovaPlugin {
 
     private static final byte[] DEFAULT_1255_MASTER_KEY = new byte[]{65, 67, 82, 49, 50, 53, 53, 85, 45, 74, 49, 32, 65, 117, 116, 104};
     private static final byte[] DEFAULT_REQUEST_CARD_ID = new byte[]{(byte) 0xFF, (byte) 0xCA, (byte) 0x0, (byte) 0x0, (byte) 0x0};
-    private static final byte[] TURN_OFF_SLEEP_MODE =  new byte[]{(byte) 0xE0, (byte) 0x00, (byte) 0x00, (byte) 0x48, (byte) 0x04};
+    private static final byte[] TURN_OFF_SLEEP_MODE =  new byte[]{(byte) 0x0D, (byte) 0x01, (byte) 0x04};
     private static final byte[] AUTO_POLLING_START = {(byte) 0xE0, 0x00, 0x00, 0x40, 0x01};
     private static final byte[] AUTO_POLLING_STOP = {(byte) 0xE0, 0x00, 0x00, 0x40, 0x00};
 
@@ -79,6 +80,7 @@ public class Acs extends CordovaPlugin {
     private CallbackContext disconnectReaderCallbackContext;
     private CallbackContext cardStatusCallbackContext;
     private CallbackContext adpuResponseCallbackContext;
+    private CallbackContext escapeResponseCallbackContext;
     private CallbackContext connectionStateCallbackContext;
 
     private int currentState = BluetoothReader.STATE_DISCONNECTED;
@@ -119,6 +121,8 @@ public class Acs extends CordovaPlugin {
             connectionStateCallbackContext = callbackContext;
         } else if (action.equalsIgnoreCase(LISTEN_FOR_ADPU_RESPONSE)) {
             adpuResponseCallbackContext = callbackContext;
+        } else if (action.equalsIgnoreCase(LISTEN_FOR_ESCAPE_RESPONSE)) {
+            escapeResponseCallbackContext = callbackContext;
         } else if (action.equalsIgnoreCase(LISTEN_FOR_CARD_STATUS)) {
             cardStatusCallbackContext = callbackContext;
         } else if (action.equalsIgnoreCase(AUTHENTICATE)) {
@@ -391,6 +395,14 @@ public class Acs extends CordovaPlugin {
                 adpuResponseCallbackContext.sendPluginResult(pluginRes);
             }
         });
+
+        mBluetoothReader.setOnEscapeResponseAvailableListener((BluetoothReader bluetoothReader, byte[] response, int errorCode) -> {
+            if (escapeResponseCallbackContext != null) {
+                PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, bytesToHex(response));
+                pluginRes.setKeepCallback(true);
+                escapeResponseCallbackContext.sendPluginResult(pluginRes);
+            }
+        });
     }
 
     private void requestId(CallbackContext callbackContext) {
@@ -404,8 +416,7 @@ public class Acs extends CordovaPlugin {
     }
 
     private void requestTurnOffSleepMode(){
-        mBluetoothReader.transmitApdu(TURN_OFF_SLEEP_MODE);
-
+        mBluetoothReader.transmitEscapeCommand(TURN_OFF_SLEEP_MODE);
     }
 
     private String getCardStatusJSON(int cardStatus) {
