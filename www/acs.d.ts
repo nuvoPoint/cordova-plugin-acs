@@ -19,13 +19,13 @@ declare module 'cordova-plugin-acs' {
 
     export function stopScan(): Promise<void>;
 
-    export function transmitAdpuCommand(): Promise<void>;
+    export function transmitAdpuCommand(command: string): Promise<void>;
 
-    export function transmitEscapeCommand(): Promise<void>;
+    export function transmitEscapeCommand(command: string): Promise<void>;
 }
 
 export interface StatusMessage {
-    code: int;
+    code: number;
     message: String;
 }
 

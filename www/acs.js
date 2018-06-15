@@ -29,10 +29,10 @@ module.exports = {
     stopScan: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopScan', []));
     },
-    transmitAdpuCommand: function () {
-        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitAdpuCommand', []));
+    transmitAdpuCommand: function (command) {
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitAdpuCommand', [command]));
     },
-    transmitEscapeCommand: function () {
-        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitEscapeCommand', []));
+    transmitEscapeCommand: function (command) {
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitEscapeCommand', [command]));
     },
 }
