@@ -35,7 +35,7 @@ module.exports = {
     transmitEscapeCommand: function (command) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitEscapeCommand', [command]));
     },
-    acsErrorCodes:  (function (AcsErrorCodes) {
+    acsErrorCodes: function (AcsErrorCodes) {
         AcsErrorCodes[AcsErrorCodes["ERR_UNKNOWN"] = 0] = "ERR_UNKNOWN";
         AcsErrorCodes[AcsErrorCodes["ERR_READER_NOT_INITIALIZED"] = 1] = "ERR_READER_NOT_INITIALIZED";
         AcsErrorCodes[AcsErrorCodes["ERR_OPERATION_FAILED"] = 2] = "ERR_OPERATION_FAILED";
@@ -47,22 +47,21 @@ module.exports = {
         AcsErrorCodes[AcsErrorCodes["ERR_READER_ALREADY_CONNECTED"] = 8] = "ERR_READER_ALREADY_CONNECTED";
         AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_IN_PROGRESS"] = 9] = "ERR_READER_CONNECTION_IN_PROGRESS";
         AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_CANCELLED"] = 10] = "ERR_READER_CONNECTION_CANCELLED";
-        AcsErrorCodes[AcsErrorCodes["ERR_READER_TYPE_NOT_SUPPORTED"] = 11 ]= "ERR_READER_TYPE_NOT_SUPPORTED";
-    })(AcsErrorCodes || (AcsErrorCodes = {})),
+        AcsErrorCodes[AcsErrorCodes["ERR_READER_TYPE_NOT_SUPPORTED"] = 11] = "ERR_READER_TYPE_NOT_SUPPORTED";
+    },
 
-    AcsCardStatus:  (function (AcsCardStatus) {
-        AcsCardStatus[AcsCardStatus["CARD_UNKNOWN"] = 0] = "CARD_UNKNOWN";
-        AcsCardStatus[AcsCardStatus["CARD_ABSENT"] = 1] = "CARD_ABSENT";
+    AcsCardStatus: function (AcsCardStatus) {
+        AcsCardStatus[AcsCardrdStatus["CARD_ABSENT"] = 1] = "CARD_ABSENT";
         AcsCardStatus[AcsCardStatus["CARD_PRESENT"] = 2] = "CARD_PRESENT";
         AcsCardStatus[AcsCardStatus["CARD_POWER_SAVING_MODE"] = 3] = "CARD_POWER_SAVING_MODE";
         AcsCardStatus[AcsCardStatus["CARD_POWERED"] = 4] = "CARD_POWERED";
-    })(AcsCardStatus || (AcsCardStatus = {})),
+    },
 
-    AcsConnectionState:  (function (AcsConnectionState) {
+    AcsConnectionState: function (AcsConnectionState) {
         AcsConnectionState[AcsConnectionState["CON_UNKNOWN"] = 0] = "CON_UNKNOWN";
         AcsConnectionState[AcsConnectionState["CON_DISCONNECTED"] = 1] = "CON_DISCONNECTED";
         AcsConnectionState[AcsConnectionState["CON_CONNECTED"] = 2] = "CON_CONNECTED";
         AcsConnectionState[AcsConnectionState["CON_CONNECTING"] = 3] = "CON_CONNECTING";
         AcsConnectionState[AcsConnectionState["CON_DISCONNECTING"] = 4] = "CON_DISCONNECTING";
-    })(AcsConnectionState || (AcsConnectionState = {})),
+    },
 }
