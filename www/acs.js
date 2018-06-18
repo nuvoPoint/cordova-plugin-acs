@@ -35,22 +35,22 @@ const acs = {
     transmitEscapeCommand: function (command) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitEscapeCommand', [command]));
     },
-    acsErrorCodes,
+    AcsErrorCodes: {},
 
-    AcsCardStatus: function (AcsCardStatus) {
-        AcsCardStatus[AcsCardrdStatus["CARD_ABSENT"] = 1] = "CARD_ABSENT";
-        AcsCardStatus[AcsCardStatus["CARD_PRESENT"] = 2] = "CARD_PRESENT";
-        AcsCardStatus[AcsCardStatus["CARD_POWER_SAVING_MODE"] = 3] = "CARD_POWER_SAVING_MODE";
-        AcsCardStatus[AcsCardStatus["CARD_POWERED"] = 4] = "CARD_POWERED";
-    },
+    // AcsCardStatus: function (AcsCardStatus) {
+    //     AcsCardStatus[AcsCardrdStatus["CARD_ABSENT"] = 1] = "CARD_ABSENT";
+    //     AcsCardStatus[AcsCardStatus["CARD_PRESENT"] = 2] = "CARD_PRESENT";
+    //     AcsCardStatus[AcsCardStatus["CARD_POWER_SAVING_MODE"] = 3] = "CARD_POWER_SAVING_MODE";
+    //     AcsCardStatus[AcsCardStatus["CARD_POWERED"] = 4] = "CARD_POWERED";
+    // },
 
-    AcsConnectionState: function (AcsConnectionState) {
-        AcsConnectionState[AcsConnectionState["CON_UNKNOWN"] = 0] = "CON_UNKNOWN";
-        AcsConnectionState[AcsConnectionState["CON_DISCONNECTED"] = 1] = "CON_DISCONNECTED";
-        AcsConnectionState[AcsConnectionState["CON_CONNECTED"] = 2] = "CON_CONNECTED";
-        AcsConnectionState[AcsConnectionState["CON_CONNECTING"] = 3] = "CON_CONNECTING";
-        AcsConnectionState[AcsConnectionState["CON_DISCONNECTING"] = 4] = "CON_DISCONNECTING";
-    },
+    // AcsConnectionState: function (AcsConnectionState) {
+    //     AcsConnectionState[AcsConnectionState["CON_UNKNOWN"] = 0] = "CON_UNKNOWN";
+    //     AcsConnectionState[AcsConnectionState["CON_DISCONNECTED"] = 1] = "CON_DISCONNECTED";
+    //     AcsConnectionState[AcsConnectionState["CON_CONNECTED"] = 2] = "CON_CONNECTED";
+    //     AcsConnectionState[AcsConnectionState["CON_CONNECTING"] = 3] = "CON_CONNECTING";
+    //     AcsConnectionState[AcsConnectionState["CON_DISCONNECTING"] = 4] = "CON_DISCONNECTING";
+    // },
 };
 
 (function (AcsErrorCodes) {
@@ -66,6 +66,6 @@ const acs = {
     AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_IN_PROGRESS"] = 9] = "ERR_READER_CONNECTION_IN_PROGRESS";
     AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_CANCELLED"] = 10] = "ERR_READER_CONNECTION_CANCELLED";
     AcsErrorCodes[AcsErrorCodes["ERR_READER_TYPE_NOT_SUPPORTED"] = 11] = "ERR_READER_TYPE_NOT_SUPPORTED";
-})(acs.acsErrorCodes || (acs.acsErrorCodes = {}))
+})(acs.AcsErrorCodes)
 
 module.exports = acs;
