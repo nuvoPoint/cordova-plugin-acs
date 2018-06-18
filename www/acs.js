@@ -36,21 +36,8 @@ const acs = {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitEscapeCommand', [command]));
     },
     AcsErrorCodes: {},
-
-    // AcsCardStatus: function (AcsCardStatus) {
-    //     AcsCardStatus[AcsCardrdStatus["CARD_ABSENT"] = 1] = "CARD_ABSENT";
-    //     AcsCardStatus[AcsCardStatus["CARD_PRESENT"] = 2] = "CARD_PRESENT";
-    //     AcsCardStatus[AcsCardStatus["CARD_POWER_SAVING_MODE"] = 3] = "CARD_POWER_SAVING_MODE";
-    //     AcsCardStatus[AcsCardStatus["CARD_POWERED"] = 4] = "CARD_POWERED";
-    // },
-
-    // AcsConnectionState: function (AcsConnectionState) {
-    //     AcsConnectionState[AcsConnectionState["CON_UNKNOWN"] = 0] = "CON_UNKNOWN";
-    //     AcsConnectionState[AcsConnectionState["CON_DISCONNECTED"] = 1] = "CON_DISCONNECTED";
-    //     AcsConnectionState[AcsConnectionState["CON_CONNECTED"] = 2] = "CON_CONNECTED";
-    //     AcsConnectionState[AcsConnectionState["CON_CONNECTING"] = 3] = "CON_CONNECTING";
-    //     AcsConnectionState[AcsConnectionState["CON_DISCONNECTING"] = 4] = "CON_DISCONNECTING";
-    // },
+    AcsCardStatus: {},
+    AcsConnectionState: {},
 };
 
 (function (AcsErrorCodes) {
@@ -67,5 +54,20 @@ const acs = {
     AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_CANCELLED"] = 10] = "ERR_READER_CONNECTION_CANCELLED";
     AcsErrorCodes[AcsErrorCodes["ERR_READER_TYPE_NOT_SUPPORTED"] = 11] = "ERR_READER_TYPE_NOT_SUPPORTED";
 })(acs.AcsErrorCodes)
+
+(function (AcsCardStatus) {
+    AcsCardStatus[AcsCardrdStatus["CARD_ABSENT"] = 1] = "CARD_ABSENT";
+    AcsCardStatus[AcsCardStatus["CARD_PRESENT"] = 2] = "CARD_PRESENT";
+    AcsCardStatus[AcsCardStatus["CARD_POWER_SAVING_MODE"] = 3] = "CARD_POWER_SAVING_MODE";
+    AcsCardStatus[AcsCardStatus["CARD_POWERED"] = 4] = "CARD_POWERED";
+})(acs.AcsCardStatus)
+
+(function (AcsConnectionState) {
+    AcsConnectionState[AcsConnectionState["CON_UNKNOWN"] = 0] = "CON_UNKNOWN";
+    AcsConnectionState[AcsConnectionState["CON_DISCONNECTED"] = 1] = "CON_DISCONNECTED";
+    AcsConnectionState[AcsConnectionState["CON_CONNECTED"] = 2] = "CON_CONNECTED";
+    AcsConnectionState[AcsConnectionState["CON_CONNECTING"] = 3] = "CON_CONNECTING";
+    AcsConnectionState[AcsConnectionState["CON_DISCONNECTING"] = 4] = "CON_DISCONNECTING";
+})(acs.AcsConnectionState)
 
 module.exports = acs;
