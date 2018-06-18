@@ -1,4 +1,4 @@
-module.exports = {
+const acs = {
     connectReader: function (readerAddress) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'connectReader', [readerAddress]));
     },
@@ -35,20 +35,7 @@ module.exports = {
     transmitEscapeCommand: function (command) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitEscapeCommand', [command]));
     },
-    acsErrorCodes: function (AcsErrorCodes) {
-        AcsErrorCodes[AcsErrorCodes["ERR_UNKNOWN"] = 0] = "ERR_UNKNOWN";
-        AcsErrorCodes[AcsErrorCodes["ERR_READER_NOT_INITIALIZED"] = 1] = "ERR_READER_NOT_INITIALIZED";
-        AcsErrorCodes[AcsErrorCodes["ERR_OPERATION_FAILED"] = 2] = "ERR_OPERATION_FAILED";
-        AcsErrorCodes[AcsErrorCodes["ERR_OPERATION_TIMED_OUT"] = 3] = "ERR_OPERATION_TIMED_OUT";
-        AcsErrorCodes[AcsErrorCodes["ERR_BT_IS_OFF"] = 4] = "ERR_BT_IS_OFF";
-        AcsErrorCodes[AcsErrorCodes["ERR_BT_ERROR"] = 5] = "ERR_BT_ERROR";
-        AcsErrorCodes[AcsErrorCodes["ERR_SCAN_IN_PROGRESS"] = 6] = "ERR_SCAN_IN_PROGRESS";
-        AcsErrorCodes[AcsErrorCodes["ERR_SCAN_FAILED"] = 7] = "ERR_SCAN_FAILED";
-        AcsErrorCodes[AcsErrorCodes["ERR_READER_ALREADY_CONNECTED"] = 8] = "ERR_READER_ALREADY_CONNECTED";
-        AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_IN_PROGRESS"] = 9] = "ERR_READER_CONNECTION_IN_PROGRESS";
-        AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_CANCELLED"] = 10] = "ERR_READER_CONNECTION_CANCELLED";
-        AcsErrorCodes[AcsErrorCodes["ERR_READER_TYPE_NOT_SUPPORTED"] = 11] = "ERR_READER_TYPE_NOT_SUPPORTED";
-    },
+    acsErrorCodes,
 
     AcsCardStatus: function (AcsCardStatus) {
         AcsCardStatus[AcsCardrdStatus["CARD_ABSENT"] = 1] = "CARD_ABSENT";
@@ -64,4 +51,21 @@ module.exports = {
         AcsConnectionState[AcsConnectionState["CON_CONNECTING"] = 3] = "CON_CONNECTING";
         AcsConnectionState[AcsConnectionState["CON_DISCONNECTING"] = 4] = "CON_DISCONNECTING";
     },
-}
+};
+
+(function (AcsErrorCodes) {
+    AcsErrorCodes[AcsErrorCodes["ERR_UNKNOWN"] = 0] = "ERR_UNKNOWN";
+    AcsErrorCodes[AcsErrorCodes["ERR_READER_NOT_INITIALIZED"] = 1] = "ERR_READER_NOT_INITIALIZED";
+    AcsErrorCodes[AcsErrorCodes["ERR_OPERATION_FAILED"] = 2] = "ERR_OPERATION_FAILED";
+    AcsErrorCodes[AcsErrorCodes["ERR_OPERATION_TIMED_OUT"] = 3] = "ERR_OPERATION_TIMED_OUT";
+    AcsErrorCodes[AcsErrorCodes["ERR_BT_IS_OFF"] = 4] = "ERR_BT_IS_OFF";
+    AcsErrorCodes[AcsErrorCodes["ERR_BT_ERROR"] = 5] = "ERR_BT_ERROR";
+    AcsErrorCodes[AcsErrorCodes["ERR_SCAN_IN_PROGRESS"] = 6] = "ERR_SCAN_IN_PROGRESS";
+    AcsErrorCodes[AcsErrorCodes["ERR_SCAN_FAILED"] = 7] = "ERR_SCAN_FAILED";
+    AcsErrorCodes[AcsErrorCodes["ERR_READER_ALREADY_CONNECTED"] = 8] = "ERR_READER_ALREADY_CONNECTED";
+    AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_IN_PROGRESS"] = 9] = "ERR_READER_CONNECTION_IN_PROGRESS";
+    AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_CANCELLED"] = 10] = "ERR_READER_CONNECTION_CANCELLED";
+    AcsErrorCodes[AcsErrorCodes["ERR_READER_TYPE_NOT_SUPPORTED"] = 11] = "ERR_READER_TYPE_NOT_SUPPORTED";
+})(acs.acsErrorCodes || (acs.acsErrorCodes = {}))
+
+module.exports = acs;
