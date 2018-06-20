@@ -325,7 +325,9 @@ public class Acs extends CordovaPlugin {
 
     public void stopScan(CallbackContext callbackContext) {
         if (mBluetoothManager == null || mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled() || startScanCallbackContext == null || !mScanning) {
-            callbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, null));
+            if (callbackContext != null) {
+                callbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, null));
+            }
             return;
         }
 
@@ -336,7 +338,9 @@ public class Acs extends CordovaPlugin {
         }
         startScanCallbackContext.success();
         startScanCallbackContext = null;
-        callbackContext.success();
+        if (callbackContext != null) {
+            callbackContext.success();
+        }
     }
 
 
@@ -542,7 +546,7 @@ public class Acs extends CordovaPlugin {
     }
 
     private void releaseResources() {
-        stopScan();
+        stopScan(null);
         if (mBluetoothReader != null) {
             mBluetoothReader.setOnDeviceInfoAvailableListener(null);
             mBluetoothReader.setOnCardStatusChangeListener(null);
