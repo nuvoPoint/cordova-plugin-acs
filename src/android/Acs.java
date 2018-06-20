@@ -328,7 +328,7 @@ public class Acs extends CordovaPlugin {
             if (callbackContext != null) {
                 callbackContext.success();
             }
-            return
+            return;
         }
 
         if (mBluetoothManager == null || mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
