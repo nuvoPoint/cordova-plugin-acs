@@ -56,7 +56,7 @@ const acs = {
 })(acs.AcsErrorCodes);
 
 (function (AcsCardStatus) {
-    AcsCardStatus[AcsCardrdStatus["CARD_ABSENT"] = 1] = "CARD_ABSENT";
+    AcsCardStatus[AcsCardStatus["CARD_ABSENT"] = 1] = "CARD_ABSENT";
     AcsCardStatus[AcsCardStatus["CARD_PRESENT"] = 2] = "CARD_PRESENT";
     AcsCardStatus[AcsCardStatus["CARD_POWER_SAVING_MODE"] = 3] = "CARD_POWER_SAVING_MODE";
     AcsCardStatus[AcsCardStatus["CARD_POWERED"] = 4] = "CARD_POWERED";
