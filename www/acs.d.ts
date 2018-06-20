@@ -17,11 +17,11 @@ declare module 'cordova-plugin-acs' {
 
   export function startScan(resolve, reject): BTDevice;
 
-  export function stopScan(): Promise<void>;
+  export function stopScan(): Promise<String>;
 
-  export function transmitAdpuCommand(command: string): Promise<void>;
+  export function transmitAdpuCommand(command: string): Promise<String>;
 
-  export function transmitEscapeCommand(command: string): Promise<void>;
+  export function transmitEscapeCommand(command: string): Promise<String>;
 
   export interface StatusMessage {
     code: number;

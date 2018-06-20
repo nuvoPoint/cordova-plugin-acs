@@ -26,7 +26,7 @@ const acs = {
     startScan: function (resolve, reject) {
         return cordova.exec(resolve, reject, 'Acs', 'startScan', []);
     },
-    stopScan: function () {
+    stopScan: function (resolve, reject) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'stopScan', []));
     },
     transmitAdpuCommand: function (command) {

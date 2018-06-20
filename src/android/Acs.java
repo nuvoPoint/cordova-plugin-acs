@@ -179,7 +179,7 @@ public class Acs extends CordovaPlugin {
         } else if (action.equalsIgnoreCase(START_SCAN)) {
             cordova.getThreadPool().execute(() -> startScan(callbackContext));
         } else if (action.equalsIgnoreCase(STOP_SCAN)) {
-            cordova.getThreadPool().execute(() -> stopScan());
+            cordova.getThreadPool().execute(() -> stopScan(callbackContext));
         } else if (action.equalsIgnoreCase(LISTEN_FOR_CONNECTION_STATE)) {
             connectionStateCallbackContext = callbackContext;
         } else if (action.equalsIgnoreCase(LISTEN_FOR_ADPU_RESPONSE)) {
@@ -243,7 +243,7 @@ public class Acs extends CordovaPlugin {
         boolean result = mBluetoothReader.enableNotification(true);
         checkIfTimedOut(callbackContext, "Enable notifications operation timed out", 2000);
         if (!result) {
-            callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED,"Enable Notifications operation was unsuccessful"));
+            callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Enable Notifications operation was unsuccessful"));
         }
     }
 
@@ -275,7 +275,7 @@ public class Acs extends CordovaPlugin {
         try {
             boolean result = mBluetoothReader.transmitEscapeCommand(toByteArray(data.getString(0)));
             if (!result) {
-                callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED,"Transmit Escape command was unsuccessful"));
+                callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Transmit Escape command was unsuccessful"));
             } else {
                 callbackContext.success();
             }
@@ -323,8 +323,9 @@ public class Acs extends CordovaPlugin {
     }
 
 
-    public void stopScan() {
+    public void stopScan(CallbackContext callbackContext) {
         if (mBluetoothManager == null || mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled() || startScanCallbackContext == null || !mScanning) {
+            callbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, null));
             return;
         }
 
@@ -335,6 +336,7 @@ public class Acs extends CordovaPlugin {
         }
         startScanCallbackContext.success();
         startScanCallbackContext = null;
+        callbackContext.success();
     }
 
 
@@ -495,7 +497,15 @@ public class Acs extends CordovaPlugin {
 
         mBluetoothReader.setOnResponseApduAvailableListener((BluetoothReader bluetoothReader, byte[] response, int errorCode) -> {
             if (adpuResponseCallbackContext != null) {
-                if (response != null) {
+                if (bytesToHex(response) == "6300") {
+                    PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, getAcsErrorCodeJSON(ERR_UNKNOWN, "ADPU response - the operation failed"));
+                    pluginRes.setKeepCallback(true);
+                    adpuResponseCallbackContext.sendPluginResult(pluginRes);
+                } else if (bytesToHex(response) == "6A81") {
+                    PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, getAcsErrorCodeJSON(ERR_UNKNOWN, "ADPU response - the operation is not supported"));
+                    pluginRes.setKeepCallback(true);
+                    adpuResponseCallbackContext.sendPluginResult(pluginRes);
+                } else if (response != null) {
                     PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, bytesToHex(response));
                     pluginRes.setKeepCallback(true);
                     adpuResponseCallbackContext.sendPluginResult(pluginRes);
@@ -593,7 +603,7 @@ public class Acs extends CordovaPlugin {
             customMessage = "Reader connection cancelled";
         } else if (errorCode == ERR_READER_TYPE_NOT_SUPPORTED && customMessage == null) {
             customMessage = "Reader type is not supported. Currently only Acr1255uj1Reader is supported.";
-        } else if (customMessage == null){
+        } else if (customMessage == null) {
             customMessage = "No error message specified. You're in trouble now boy.";
         }
 
