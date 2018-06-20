@@ -325,9 +325,7 @@ public class Acs extends CordovaPlugin {
 
     public void stopScan(CallbackContext callbackContext) {
         if (mBluetoothManager == null || mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled() || startScanCallbackContext == null || !mScanning) {
-            if (callbackContext != null) {
-                callbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, null));
-            }
+            callbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, null));
             return;
         }
 
@@ -338,9 +336,7 @@ public class Acs extends CordovaPlugin {
         }
         startScanCallbackContext.success();
         startScanCallbackContext = null;
-        if (callbackContext != null) {
-            callbackContext.success();
-        }
+        callbackContext.success();
     }
 
 
@@ -539,14 +535,14 @@ public class Acs extends CordovaPlugin {
     private void updateConnectionState(int newState) {
         if (connectionStateCallbackContext != null && currentState != newState) {
             currentState = newState;
-            PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, getConnectionStateJSON(BluetoothReader.STATE_DISCONNECTED));
+            PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, getConnectionStateJSON(newState));
             pluginRes.setKeepCallback(true);
             connectionStateCallbackContext.sendPluginResult(pluginRes);
         }
     }
 
     private void releaseResources() {
-        stopScan(null);
+        stopScan();
         if (mBluetoothReader != null) {
             mBluetoothReader.setOnDeviceInfoAvailableListener(null);
             mBluetoothReader.setOnCardStatusChangeListener(null);
