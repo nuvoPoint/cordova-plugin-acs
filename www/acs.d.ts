@@ -1,11 +1,11 @@
 declare module 'cordova-plugin-acs' {
-  export function connectReader(readerAddress: string): Promise<void>;
+  export function connectReader(readerAddress: string): Promise<String>;
 
-  export function disconnectReader(): Promise<void>;
+  export function disconnectReader(): Promise<String>;
 
-  export function enableNotifications(): Promise<void>;
+  export function enableNotifications(): Promise<String>;
 
-  export function authenticate(): Promise<void>;
+  export function authenticate(): Promise<String>;
 
   export function listenForAdpuResponse(resolve, reject): String;
 
