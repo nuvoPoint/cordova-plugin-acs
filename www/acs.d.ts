@@ -23,6 +23,8 @@ declare module 'cordova-plugin-acs' {
 
   export function transmitEscapeCommand(command: string): Promise<String>;
 
+    export function turnOnBt(): Promise<String>;
+
   export interface StatusMessage {
     code: number;
     message: String;

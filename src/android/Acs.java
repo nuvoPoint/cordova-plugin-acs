@@ -34,7 +34,7 @@ import org.json.JSONArray;
 import com.acs.bluetooth.*;
 import com.google.gson.Gson;
 
-public class Acs extends CordovaPlugin {
+public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermissionsResultCallback {
     private static final String CONNECT_READER = "connectReader";
     private static final String DISCONNECT_READER = "disconnectReader";
     private static final String ENABLE_NOTIFICATIONS = "enableNotifications";
@@ -47,10 +47,11 @@ public class Acs extends CordovaPlugin {
     private static final String STOP_SCAN = "stopScan";
     private static final String TRANSMIT_ADPU_COMMAND = "transmitAdpuCommand";
     private static final String TRANSMIT_ESCAPE_COMMAND = "transmitEscapeCommand";
+    private static final String TURN_ON_BT = "turnOnBt";
 
 
     private static final int REQUEST_ENABLE_BT = 1;
-    private final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION = 1;
+    private static final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION = 1;
 
 
     /* Error codes */
@@ -106,6 +107,7 @@ public class Acs extends CordovaPlugin {
     private CallbackContext adpuResponseCallbackContext;
     private CallbackContext escapeResponseCallbackContext;
     private CallbackContext connectionStateCallbackContext;
+    private CallbackContext btTurnOnCallbackContext;
 
     private int currentState = BluetoothReader.STATE_DISCONNECTED;
 
@@ -116,12 +118,6 @@ public class Acs extends CordovaPlugin {
         mBluetoothManager = (BluetoothManager) pluginActivity.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
         mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
-
-        // Request to enable BT if it isn't already enabled
-        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
 
         // Get the permissions for scanning BT devices
         if (ContextCompat.checkSelfPermission(pluginActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -196,10 +192,40 @@ public class Acs extends CordovaPlugin {
             cordova.getThreadPool().execute(() -> transmitAdpuCommand(callbackContext, data));
         } else if (action.equalsIgnoreCase(TRANSMIT_ESCAPE_COMMAND)) {
             cordova.getThreadPool().execute(() -> transmitEscapeCommand(callbackContext, data));
+        } else if (action.equalsIgnoreCase(TURN_ON_BT)) {
+            cordova.getThreadPool().execute(() -> turnOnBt(callbackContext));
         } else {
             return false;
         }
         return true;
+    }
+
+    private void turnOnBt(CallbackContext callbackContext) {
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            btTurnOnCallbackContext = callbackContext;
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        } else {
+            callbackContext.success();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_ENABLE_BT: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    btTurnOnCallbackContext.success();
+                } else {
+                    btTurnOnCallbackContext.error("Bluetooth permissions not granted");
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+        }
     }
 
 

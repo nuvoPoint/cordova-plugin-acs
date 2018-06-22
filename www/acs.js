@@ -35,6 +35,9 @@ const acs = {
     transmitEscapeCommand: function (command) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitEscapeCommand', [command]));
     },
+        turnOnBt: function (resolve, reject) {
+            return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'turnOnBt', []));
+        },
     AcsErrorCodes: {},
     AcsCardStatus: {},
     AcsConnectionState: {},
