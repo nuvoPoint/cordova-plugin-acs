@@ -47,11 +47,12 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     private static final String STOP_SCAN = "stopScan";
     private static final String TRANSMIT_ADPU_COMMAND = "transmitAdpuCommand";
     private static final String TRANSMIT_ESCAPE_COMMAND = "transmitEscapeCommand";
-    private static final String TURN_ON_BT = "turnOnBt";
+    private static final String REQUEST_TURN_ON_BT = "requestTurnOnBt";
+    private static final String REQUEST_BT_PERMISSIONS = "requestBtPermissions";
 
 
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION = 1;
+    private static final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION = 2;
 
 
     /* Error codes */
@@ -107,7 +108,8 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     private CallbackContext adpuResponseCallbackContext;
     private CallbackContext escapeResponseCallbackContext;
     private CallbackContext connectionStateCallbackContext;
-    private CallbackContext btTurnOnCallbackContext;
+    private CallbackContext requestTurnOnBtCallbackContext;
+    private CallbackContext requestBtPermissionsCallbackContext;
 
     private int currentState = BluetoothReader.STATE_DISCONNECTED;
 
@@ -192,39 +194,67 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
             cordova.getThreadPool().execute(() -> transmitAdpuCommand(callbackContext, data));
         } else if (action.equalsIgnoreCase(TRANSMIT_ESCAPE_COMMAND)) {
             cordova.getThreadPool().execute(() -> transmitEscapeCommand(callbackContext, data));
-        } else if (action.equalsIgnoreCase(TURN_ON_BT)) {
-            cordova.getThreadPool().execute(() -> turnOnBt(callbackContext));
+        } else if (action.equalsIgnoreCase(REQUEST_TURN_ON_BT)) {
+            cordova.setActivityResultCallback(this);
+            cordova.getThreadPool().execute(() -> requestTurnOnBt(callbackContext));
+        } else if (action.equalsIgnoreCase(REQUEST_BT_PERMISSIONS)) {
+            cordova.getThreadPool().execute(() -> requestBtPermissions(callbackContext));
         } else {
             return false;
         }
         return true;
     }
 
-    private void turnOnBt(CallbackContext callbackContext) {
+    private void requestTurnOnBt(CallbackContext callbackContext) {
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-            btTurnOnCallbackContext = callbackContext;
+            requestTurnOnBtCallbackContext = callbackContext;
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        } else {
+            pluginActivity.setResult(pluginActivity.RESULT_OK);
+        } else if (callbackContext != null && !callbackContext.isFinished()) {
             callbackContext.success();
         }
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_ENABLE_BT && requestTurnOnBtCallbackContext != null && !requestTurnOnBtCallbackContext.isFinished()) {
+            if (resultCode == pluginActivity.RESULT_OK) {
+                requestTurnOnBtCallbackContext.success();
+            } else {
+                requestTurnOnBtCallbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Failed to turn on BT"));
+            }
+        }
+    }
+
+    private void requestBtPermissions(CallbackContext callbackContext) {
+        if (ContextCompat.checkSelfPermission(pluginActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestBtPermissionsCallbackContext = callbackContext;
+            String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
+            ActivityCompat.requestPermissions(pluginActivity, permissions, REQUEST_PERMISSION_ACCESS_COARSE_LOCATION);
+        } else if (callbackContext != null && !callbackContext.isFinished()) {
+            callbackContext.success();
+        }
+    }
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_ENABLE_BT: {
+            case REQUEST_PERMISSION_ACCESS_COARSE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    btTurnOnCallbackContext.success();
-                } else {
-                    btTurnOnCallbackContext.error("Bluetooth permissions not granted");
+                if (requestTurnOnBtCallbackContext != null && !requestTurnOnBtCallbackContext.isFinished()) {
+                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        requestTurnOnBtCallbackContext.success();
+                    } else {
+                        requestTurnOnBtCallbackContext.error("Bluetooth permissions not granted");
+                    }
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request.
         }
     }
 
@@ -313,8 +343,6 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
     public void startScan(CallbackContext callbackContext) {
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             callbackContext.error(getAcsErrorCodeJSON(ERR_BT_IS_OFF, null));
             return;
         }
@@ -440,8 +468,6 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     private void connectReader(final CallbackContext callbackContext, JSONArray data) {
         try {
             if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
                 callbackContext.error(getAcsErrorCodeJSON(ERR_BT_IS_OFF, null));
                 return;
             }
