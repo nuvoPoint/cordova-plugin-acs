@@ -210,7 +210,6 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
             requestTurnOnBtCallbackContext = callbackContext;
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            pluginActivity.setResult(pluginActivity.RESULT_OK);
         } else if (callbackContext != null && !callbackContext.isFinished()) {
             callbackContext.success();
         }
@@ -246,11 +245,11 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
         switch (requestCode) {
             case REQUEST_PERMISSION_ACCESS_COARSE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
-                if (requestTurnOnBtCallbackContext != null && !requestTurnOnBtCallbackContext.isFinished()) {
+                if (requestBtPermissionsCallbackContext != null && !requestBtPermissionsCallbackContext.isFinished()) {
                     if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        requestTurnOnBtCallbackContext.success();
+                        requestBtPermissionsCallbackContext.success();
                     } else {
-                        requestTurnOnBtCallbackContext.error("Bluetooth permissions not granted");
+                        requestBtPermissionsCallbackContext.error("Bluetooth permissions not granted");
                     }
                 }
                 return;

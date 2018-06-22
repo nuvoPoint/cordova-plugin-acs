@@ -36,10 +36,10 @@ const acs = {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitEscapeCommand', [command]));
     },
         requestTurnOnBt: function (resolve, reject) {
-            return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'turnOnBt', []));
+            return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'requestTurnOnBt', []));
         },
                 requestBtPermissions: function (resolve, reject) {
-                    return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'turnOnBt', []));
+                    return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'requestBtPermissions', []));
                 },
     AcsErrorCodes: {},
     AcsCardStatus: {},
