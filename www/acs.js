@@ -23,6 +23,9 @@ const acs = {
     listenForConnectionState: function (resolve, reject) {
         return cordova.exec(resolve, reject, 'Acs', 'listenForConnectionState', [])
     },
+        listenForNfcConnectionState: function (resolve, reject) {
+            return cordova.exec(resolve, reject, 'Acs', 'listenForNfcConnectionState', [])
+        },
     startScan: function (resolve, reject) {
         return cordova.exec(resolve, reject, 'Acs', 'startScan', []);
     },

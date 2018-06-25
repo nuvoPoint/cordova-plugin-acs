@@ -15,10 +15,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.nfc.NfcAdapter;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -43,6 +43,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     private static final String LISTEN_FOR_ESCAPE_RESPONSE = "listenForEscapeResponse";
     private static final String LISTEN_FOR_CARD_STATUS = "listenForCardStatus";
     private static final String LISTEN_FOR_CONNECTION_STATE = "listenForConnectionState";
+    private static final String LISTEN_FOR_NFC_CONNECTION_STATE = "listenForNfcConnectionState";
     private static final String START_SCAN = "startScan";
     private static final String STOP_SCAN = "stopScan";
     private static final String TRANSMIT_ADPU_COMMAND = "transmitAdpuCommand";
@@ -110,6 +111,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     private CallbackContext connectionStateCallbackContext;
     private CallbackContext requestBtCallbackContext;
     private CallbackContext requestBtPermissionsCallbackContext;
+    private CallbackContext nfcConnectionStateCallbackContext;
 
     private int currentState = BluetoothReader.STATE_DISCONNECTED;
 
@@ -123,6 +125,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
         initializeBluetoothReaderManagerListeners();
         pluginActivity.registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+        pluginActivity.registerReceiver(mReceiver, new IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED));
     }
 
 
@@ -139,22 +142,37 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
             String action = intent.getAction();
 
             if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
 
                 switch (state) {
                     case BluetoothAdapter.STATE_OFF:
                         updateConnectionState(BluetoothReader.STATE_DISCONNECTED);
                         break;
-
                     case BluetoothAdapter.STATE_TURNING_ON:
                         break;
-
                     case BluetoothAdapter.STATE_ON:
                         mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
                         break;
-
                     case BluetoothAdapter.STATE_TURNING_OFF:
                         releaseResources();
+                        break;
+                }
+            } else if (NfcAdapter.ACTION_ADAPTER_STATE_CHANGED.equals(action)) {
+                final int state = intent.getIntExtra(NfcAdapter.EXTRA_ADAPTER_STATE, NfcAdapter.STATE_OFF);
+                switch (state) {
+                    case NfcAdapter.STATE_OFF:
+                        PluginResult pluginRes1 = new PluginResult(PluginResult.Status.OK, 0);
+                        pluginRes1.setKeepCallback(true);
+                        nfcConnectionStateCallbackContext.sendPluginResult(pluginRes1);
+                        break;
+                    case NfcAdapter.STATE_TURNING_OFF:
+                        break;
+                    case NfcAdapter.STATE_ON:
+                        PluginResult pluginRes2 = new PluginResult(PluginResult.Status.OK, 1);
+                        pluginRes2.setKeepCallback(true);
+                        nfcConnectionStateCallbackContext.sendPluginResult(pluginRes2);
+                        break;
+                    case NfcAdapter.STATE_TURNING_ON:
                         break;
                 }
             }
@@ -180,6 +198,8 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
             escapeResponseCallbackContext = callbackContext;
         } else if (action.equalsIgnoreCase(LISTEN_FOR_CARD_STATUS)) {
             cardStatusCallbackContext = callbackContext;
+        } else if (action.equalsIgnoreCase(LISTEN_FOR_NFC_CONNECTION_STATE)) {
+            nfcConnectionStateCallbackContext = callbackContext;
         } else if (action.equalsIgnoreCase(AUTHENTICATE)) {
             cordova.getThreadPool().execute(() -> authenticate(callbackContext));
         } else if (action.equalsIgnoreCase(ENABLE_NOTIFICATIONS)) {
@@ -190,7 +210,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
             cordova.getThreadPool().execute(() -> transmitEscapeCommand(callbackContext, data));
         } else if (action.equalsIgnoreCase(REQUEST_BT)) {
             cordova.setActivityResultCallback(this);
-            cordova.getThreadPool().execute(() -> requestBt(callbackContext));
+            cordova.getThreadPool().execute(() -> requestTurnOnBt(callbackContext));
         } else if (action.equalsIgnoreCase(REQUEST_BT_PERMISSIONS)) {
             cordova.getThreadPool().execute(() -> requestBtPermissions(callbackContext));
         } else {
@@ -199,7 +219,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
         return true;
     }
 
-    private void requestBt(CallbackContext callbackContext) {
+    private void requestTurnOnBt(CallbackContext callbackContext) {
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             requestBtCallbackContext = callbackContext;
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -210,7 +230,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     }
 
 
-    private void requestBtPermissions(CallbackContext callbackContext){
+    private void requestBtPermissions(CallbackContext callbackContext) {
         if (!cordova.hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
             requestBtPermissionsCallbackContext = callbackContext;
             String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};

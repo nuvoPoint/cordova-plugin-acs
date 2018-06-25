@@ -1,31 +1,33 @@
 declare module 'cordova-plugin-acs' {
-  export function connectReader(readerAddress: string): Promise<String>;
+  export function connectReader(readerAddress: string): Promise<string>;
 
-  export function disconnectReader(): Promise<String>;
+  export function disconnectReader(): Promise<string>;
 
-  export function enableNotifications(): Promise<String>;
+  export function enableNotifications(): Promise<string>;
 
-  export function authenticate(): Promise<String>;
+  export function authenticate(): Promise<string>;
 
-  export function listenForAdpuResponse(resolve, reject): String;
+  export function listenForAdpuResponse(resolve, reject): string;
 
-  export function listenForEscapeResponse(resolve, reject): String;
+  export function listenForEscapeResponse(resolve, reject): string;
 
   export function listenForCardStatus(resolve, reject): StatusMessage;
 
   export function listenForConnectionState(resolve, reject): StatusMessage;
 
+  export function listenForNfcConnectionState(resolve, reject): number;
+
   export function startScan(resolve, reject): BTDevice;
 
-  export function stopScan(): Promise<String>;
+  export function stopScan(): Promise<string>;
 
-  export function transmitAdpuCommand(command: string): Promise<String>;
+  export function transmitAdpuCommand(command: string): Promise<string>;
 
-  export function transmitEscapeCommand(command: string): Promise<String>;
+  export function transmitEscapeCommand(command: string): Promise<string>;
 
-  export function requestBt(): Promise<String>;
+  export function requestBt(): Promise<string>;
 
-  export function requestBtPermissions(): Promise<String>;
+  export function requestBtPermissions(): Promise<string>;
 
   export interface StatusMessage {
     code: number;
