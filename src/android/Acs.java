@@ -216,6 +216,17 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     }
 
 
+    private void requestBtPermissions(CallbackContext callbackContext){
+        if (!cordova.hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            requestBtPermissionsCallbackContext = callbackContext;
+            String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
+            cordova.requestPermissions(this, REQUEST_PERMISSION_ACCESS_COARSE_LOCATION, permissions);
+        } else if (callbackContext != null && !callbackContext.isFinished()) {
+            callbackContext.success();
+        }
+    }
+
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -229,19 +240,26 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
         }
     }
 
-    private void requestBtPermissions(CallbackContext callbackContext) {
-        if (ContextCompat.checkSelfPermission(pluginActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestBtPermissionsCallbackContext = callbackContext;
-            String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
-            ActivityCompat.requestPermissions(pluginActivity, permissions, REQUEST_PERMISSION_ACCESS_COARSE_LOCATION);
-        } else if (callbackContext != null && !callbackContext.isFinished()) {
-            callbackContext.success();
+
+    @Override
+    public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSION_ACCESS_COARSE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (requestBtPermissionsCallbackContext != null && !requestBtPermissionsCallbackContext.isFinished()) {
+                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        requestBtPermissionsCallbackContext.success();
+                    } else {
+                        requestBtPermissionsCallbackContext.error("Bluetooth permissions not granted");
+                    }
+                }
+                return;
+            }
         }
     }
 
-
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case REQUEST_PERMISSION_ACCESS_COARSE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
