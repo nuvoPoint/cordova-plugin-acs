@@ -23,7 +23,7 @@ declare module 'cordova-plugin-acs' {
 
   export function transmitEscapeCommand(command: string): Promise<String>;
 
-  export function requestTurnOnBt(): Promise<String>;
+  export function requestBt(): Promise<String>;
 
   export function requestBtPermissions(): Promise<String>;
 

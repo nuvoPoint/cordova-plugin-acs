@@ -47,7 +47,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     private static final String STOP_SCAN = "stopScan";
     private static final String TRANSMIT_ADPU_COMMAND = "transmitAdpuCommand";
     private static final String TRANSMIT_ESCAPE_COMMAND = "transmitEscapeCommand";
-    private static final String REQUEST_TURN_ON_BT = "requestTurnOnBt";
+    private static final String REQUEST_BT = "requestBt";
     private static final String REQUEST_BT_PERMISSIONS = "requestBtPermissions";
 
 
@@ -108,7 +108,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     private CallbackContext adpuResponseCallbackContext;
     private CallbackContext escapeResponseCallbackContext;
     private CallbackContext connectionStateCallbackContext;
-    private CallbackContext requestTurnOnBtCallbackContext;
+    private CallbackContext requestBtCallbackContext;
     private CallbackContext requestBtPermissionsCallbackContext;
 
     private int currentState = BluetoothReader.STATE_DISCONNECTED;
@@ -188,9 +188,9 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
             cordova.getThreadPool().execute(() -> transmitAdpuCommand(callbackContext, data));
         } else if (action.equalsIgnoreCase(TRANSMIT_ESCAPE_COMMAND)) {
             cordova.getThreadPool().execute(() -> transmitEscapeCommand(callbackContext, data));
-        } else if (action.equalsIgnoreCase(REQUEST_TURN_ON_BT)) {
+        } else if (action.equalsIgnoreCase(REQUEST_BT)) {
             cordova.setActivityResultCallback(this);
-            cordova.getThreadPool().execute(() -> requestTurnOnBt(callbackContext));
+            cordova.getThreadPool().execute(() -> requestBt(callbackContext));
         } else if (action.equalsIgnoreCase(REQUEST_BT_PERMISSIONS)) {
             cordova.getThreadPool().execute(() -> requestBtPermissions(callbackContext));
         } else {
@@ -199,9 +199,9 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
         return true;
     }
 
-    private void requestTurnOnBt(CallbackContext callbackContext) {
+    private void requestBt(CallbackContext callbackContext) {
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-            requestTurnOnBtCallbackContext = callbackContext;
+            requestBtCallbackContext = callbackContext;
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         } else if (callbackContext != null && !callbackContext.isFinished()) {
@@ -225,11 +225,11 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_ENABLE_BT && requestTurnOnBtCallbackContext != null && !requestTurnOnBtCallbackContext.isFinished()) {
+        if (requestCode == REQUEST_ENABLE_BT && requestBtCallbackContext != null && !requestBtCallbackContext.isFinished()) {
             if (resultCode == pluginActivity.RESULT_OK) {
-                requestTurnOnBtCallbackContext.success();
+                requestBtCallbackContext.success();
             } else {
-                requestTurnOnBtCallbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Failed to turn on BT"));
+                requestBtCallbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Failed to turn on BT"));
             }
         }
     }
