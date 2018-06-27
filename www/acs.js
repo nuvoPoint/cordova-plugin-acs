@@ -5,9 +5,9 @@ const acs = {
     disconnectGatt: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'disconnectGatt', []));
     },
-        detectReader: function () {
-            return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'detectReader', []));
-        },
+    detectReader: function () {
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'detectReader', []));
+    },
     enableNotifications: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'enableNotifications', []));
     },
@@ -26,9 +26,9 @@ const acs = {
     listenForConnectionState: function (resolve, reject) {
         return cordova.exec(resolve, reject, 'Acs', 'listenForConnectionState', [])
     },
-        listenForNfcConnectionState: function (resolve, reject) {
-            return cordova.exec(resolve, reject, 'Acs', 'listenForNfcConnectionState', [])
-        },
+    listenForNfcConnectionState: function (resolve, reject) {
+        return cordova.exec(resolve, reject, 'Acs', 'listenForNfcConnectionState', [])
+    },
     startScan: function (resolve, reject) {
         return cordova.exec(resolve, reject, 'Acs', 'startScan', []);
     },
@@ -41,12 +41,12 @@ const acs = {
     transmitEscapeCommand: function (command) {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'transmitEscapeCommand', [command]));
     },
-        requestBt: function (resolve, reject) {
-            return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'requestBt', []));
-        },
-                requestBtPermissions: function (resolve, reject) {
-                    return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'requestBtPermissions', []));
-                },
+    requestBt: function (resolve, reject) {
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'requestBt', []));
+    },
+    requestBtPermissions: function (resolve, reject) {
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'requestBtPermissions', []));
+    },
     AcsErrorCodes: {},
     AcsCardStatus: {},
     AcsConnectionState: {},
