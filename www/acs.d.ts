@@ -1,9 +1,7 @@
 declare module 'cordova-plugin-acs' {
-  export function connectGatt(macAddress: string): Promise<string>;
+  export function connectReader(readerAddress: string): Promise<string>;
 
   export function disconnectReader(): Promise<string>;
-
-    export function detectReader(): Promise<string>;
 
   export function enableNotifications(): Promise<string>;
 
@@ -54,9 +52,9 @@ declare module 'cordova-plugin-acs' {
     ERR_BT_ERROR = 5,
     ERR_SCAN_IN_PROGRESS = 6,
     ERR_SCAN_FAILED = 7,
-    ERR_GATT_ALREADY_CONNECTED = 8,
-    ERR_GATT_CONNECTION_IN_PROGRESS = 9,
-    ERR_GATT_CONNECTION_CANCELLED = 10,
+    ERR_READER_ALREADY_CONNECTED = 8,
+    ERR_READER_CONNECTION_IN_PROGRESS = 9,
+    ERR_READER_CONNECTION_CANCELLED = 10,
     ERR_READER_TYPE_NOT_SUPPORTED = 11,
   }
 

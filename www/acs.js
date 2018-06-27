@@ -1,13 +1,10 @@
 const acs = {
-    connectGatt: function (macAddress) {
-        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'connectGatt', [macAddress]));
+    connectReader: function (readerAddress) {
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'connectReader', [readerAddress]));
     },
-    disconnectGatt: function () {
-        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'disconnectGatt', []));
+    disconnectReader: function () {
+        return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'disconnectReader', []));
     },
-        detectReader: function () {
-            return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'detectReader', []));
-        },
     enableNotifications: function () {
         return new Promise((resolve, reject) => cordova.exec(resolve, reject, 'Acs', 'enableNotifications', []));
     },
@@ -61,9 +58,9 @@ const acs = {
     AcsErrorCodes[AcsErrorCodes["ERR_BT_ERROR"] = 5] = "ERR_BT_ERROR";
     AcsErrorCodes[AcsErrorCodes["ERR_SCAN_IN_PROGRESS"] = 6] = "ERR_SCAN_IN_PROGRESS";
     AcsErrorCodes[AcsErrorCodes["ERR_SCAN_FAILED"] = 7] = "ERR_SCAN_FAILED";
-    AcsErrorCodes[AcsErrorCodes["ERR_GATT_ALREADY_CONNECTED"] = 8] = "ERR_GATT_ALREADY_CONNECTED";
-    AcsErrorCodes[AcsErrorCodes["ERR_GATT_CONNECTION_IN_PROGRESS"] = 9] = "ERR_GATT_CONNECTION_IN_PROGRESS";
-    AcsErrorCodes[AcsErrorCodes["ERR_GATT_CONNECTION_CANCELLED"] = 10] = "ERR_GATT_CONNECTION_CANCELLED";
+    AcsErrorCodes[AcsErrorCodes["ERR_READER_ALREADY_CONNECTED"] = 8] = "ERR_READER_ALREADY_CONNECTED";
+    AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_IN_PROGRESS"] = 9] = "ERR_READER_CONNECTION_IN_PROGRESS";
+    AcsErrorCodes[AcsErrorCodes["ERR_READER_CONNECTION_CANCELLED"] = 10] = "ERR_READER_CONNECTION_CANCELLED";
     AcsErrorCodes[AcsErrorCodes["ERR_READER_TYPE_NOT_SUPPORTED"] = 11] = "ERR_READER_TYPE_NOT_SUPPORTED";
 })(acs.AcsErrorCodes);
 
