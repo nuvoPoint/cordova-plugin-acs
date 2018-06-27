@@ -553,7 +553,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
     private void initializeGattCallbackListeners() {
         mGattCallback.setOnConnectionStateChangeListener((final BluetoothGatt gatt, final int state, final int newState) -> {
-            this.updateConnectionState(state);
+            this.updateConnectionState(newState);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 if (mBluetoothReaderManager != null) {
@@ -576,7 +576,9 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
             mBluetoothReader = bluetoothReader;
             initializeBluetoothReaderListeners();
-            connectReaderCallbackContext.success();
+            if(connectReaderCallbackContext != null){
+              connectReaderCallbackContext.success();
+            }
         });
     }
 
