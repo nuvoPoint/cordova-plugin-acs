@@ -27,6 +27,7 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -632,7 +633,9 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
           pluginRes.setKeepCallback(true);
           adpuResponseCallbackContext.sendPluginResult(pluginRes);
         } else if (response != null) {
-          PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, bytesToHex(response));
+//          Remove last 2 entries of the array as they are not part of the ID
+          response = Arrays.copyOf(response, response.length-2);
+          PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, byteArrayToJSON(response));
           pluginRes.setKeepCallback(true);
           adpuResponseCallbackContext.sendPluginResult(pluginRes);
         } else {
@@ -646,7 +649,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     mBluetoothReader.setOnEscapeResponseAvailableListener((BluetoothReader bluetoothReader, byte[] response, int errorCode) -> {
       if (escapeResponseCallbackContext != null) {
         if (response != null) {
-          PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, bytesToHex(response));
+          PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, byteArrayToJSON(response));
           pluginRes.setKeepCallback(true);
           escapeResponseCallbackContext.sendPluginResult(pluginRes);
         } else {
@@ -764,6 +767,15 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     return gson.toJson(new StatusMessage(CON_UNKNOWN, "Status unknown."));
   }
 
+
+
+  private static JSONArray byteArrayToJSON(byte[] bytes) {
+    JSONArray json = new JSONArray();
+    for (byte aByte : bytes) {
+      json.put(aByte);
+    }
+    return json;
+  }
 
   private static String bytesToHex(byte[] bytes) {
     final char[] hexArray = "0123456789ABCDEF".toCharArray();
