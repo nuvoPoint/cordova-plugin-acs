@@ -19,6 +19,8 @@ declare module 'cordova-plugin-acs' {
 
   export function listenForNfcConnectionState(resolve, reject): number;
 
+  export function listenForBtConnectionState(resolve, reject): number;
+
   export function startScan(resolve, reject): BTDevice;
 
   export function stopScan(): Promise<string>;
