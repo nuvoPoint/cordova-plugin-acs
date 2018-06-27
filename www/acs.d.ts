@@ -1,9 +1,9 @@
 declare module 'cordova-plugin-acs' {
   export function connectGatt(macAddress: string): Promise<string>;
 
-  export function disconnectGatt(): Promise<string>;
+  export function disconnectReader(): Promise<string>;
 
-  export function detectReader(): Promise<string>;
+    export function detectReader(): Promise<string>;
 
   export function enableNotifications(): Promise<string>;
 
@@ -61,18 +61,18 @@ declare module 'cordova-plugin-acs' {
   }
 
   export enum AcsCardStatus {
-    CARD_UNKNOWN = 0,
-    CARD_ABSENT = 1,
-    CARD_PRESENT = 2,
-    CARD_POWER_SAVING_MODE = 3,
-    CARD_POWERED = 4,
+      CARD_UNKNOWN = 0,
+      CARD_ABSENT = 1,
+      CARD_PRESENT = 2,
+      CARD_POWER_SAVING_MODE = 3,
+      CARD_POWERED = 4,
   }
-
+  
   export enum AcsConnectionState {
-    CON_UNKNOWN = 0,
-    CON_DISCONNECTED = 1,
-    CON_CONNECTED = 2,
-    CON_CONNECTING = 3,
-    CON_DISCONNECTING = 4,
-  }
+      CON_UNKNOWN = 0,
+      CON_DISCONNECTED = 1,
+      CON_CONNECTED = 2,
+      CON_CONNECTING = 3,
+      CON_DISCONNECTING = 4,
+  }      
 }
