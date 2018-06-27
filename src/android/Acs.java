@@ -35,8 +35,9 @@ import com.acs.bluetooth.*;
 import com.google.gson.Gson;
 
 public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermissionsResultCallback {
-    private static final String CONNECT_READER = "connectReader";
-    private static final String DISCONNECT_READER = "disconnectReader";
+    private static final String CONNECT_GATT = "connectGatt";
+    private static final String DISCONNECT_GATT = "disconnectGatt";
+    private static final String DETECT_READER = "detectReader";
     private static final String ENABLE_NOTIFICATIONS = "enableNotifications";
     private static final String AUTHENTICATE = "authenticate";
     private static final String LISTEN_FOR_ADPU_RESPONSE = "listenForAdpuResponse";
@@ -65,9 +66,9 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     private static final int ERR_BT_ERROR = 5;
     private static final int ERR_SCAN_IN_PROGRESS = 6;
     private static final int ERR_SCAN_FAILED = 7;
-    private static final int ERR_READER_ALREADY_CONNECTED = 8;
-    private static final int ERR_READER_CONNECTION_IN_PROGRESS = 9;
-    private static final int ERR_READER_CONNECTION_CANCELLED = 10;
+    private static final int ERR_GATT_ALREADY_CONNECTED = 8;
+    private static final int ERR_GATT_CONNECTION_IN_PROGRESS = 9;
+    private static final int ERR_GATT_CONNECTION_CANCELLED = 10;
     private static final int ERR_READER_TYPE_NOT_SUPPORTED = 11;
 
 
@@ -104,7 +105,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
     // Callback contexts
     private CallbackContext startScanCallbackContext;
-    private CallbackContext connectReaderCallbackContext;
+    private CallbackContext connectGattCallbackContext;
     private CallbackContext cardStatusCallbackContext;
     private CallbackContext adpuResponseCallbackContext;
     private CallbackContext escapeResponseCallbackContext;
@@ -112,6 +113,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     private CallbackContext requestBtCallbackContext;
     private CallbackContext requestBtPermissionsCallbackContext;
     private CallbackContext nfcConnectionStateCallbackContext;
+    private CallbackContext detectReaderCallbackContext;
 
     private int currentState = BluetoothReader.STATE_DISCONNECTED;
 
@@ -182,10 +184,12 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) {
-        if (action.equalsIgnoreCase(CONNECT_READER)) {
-            cordova.getThreadPool().execute(() -> connectReader(callbackContext, data));
-        } else if (action.equalsIgnoreCase(DISCONNECT_READER)) {
-            cordova.getThreadPool().execute(() -> disconnectReader(callbackContext));
+        if (action.equalsIgnoreCase(CONNECT_GATT)) {
+            cordova.getThreadPool().execute(() -> connectGatt(callbackContext, data));
+        } else if (action.equalsIgnoreCase(DISCONNECT_GATT)) {
+            cordova.getThreadPool().execute(() -> disconnectGatt(callbackContext));
+        } else if (action.equalsIgnoreCase(DETECT_READER)) {
+            cordova.getThreadPool().execute(() -> detectReader(callbackContext));
         } else if (action.equalsIgnoreCase(START_SCAN)) {
             cordova.getThreadPool().execute(() -> startScan(callbackContext));
         } else if (action.equalsIgnoreCase(STOP_SCAN)) {
@@ -496,7 +500,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     }
 
 
-    private void connectReader(final CallbackContext callbackContext, JSONArray data) {
+    private void connectGatt(final CallbackContext callbackContext, JSONArray data) {
         try {
             if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
                 callbackContext.error(getAcsErrorCodeJSON(ERR_BT_IS_OFF, null));
@@ -506,18 +510,18 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
             // Check for already existing connections
             if (currentState != BluetoothReader.STATE_DISCONNECTED) {
-                callbackContext.error(getAcsErrorCodeJSON(ERR_READER_ALREADY_CONNECTED, null));
+                callbackContext.error(getAcsErrorCodeJSON(ERR_GATT_ALREADY_CONNECTED, null));
                 return;
             }
 
-            if (connectReaderCallbackContext != null && !connectReaderCallbackContext.isFinished()) {
-                callbackContext.error(getAcsErrorCodeJSON(ERR_READER_CONNECTION_IN_PROGRESS, null));
+            if (connectGattCallbackContext != null && !connectGattCallbackContext.isFinished()) {
+                callbackContext.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_IN_PROGRESS, null));
                 return;
             }
 
             // Get the device address
             String myDeviceAddress = data.getString(0);
-            connectReaderCallbackContext = callbackContext;
+            connectGattCallbackContext = callbackContext;
 
 
             // Create a new GATT Callback and initialize listeners
@@ -527,56 +531,74 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
             // Get the device by it's address and connect to it with the callBack
             final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(myDeviceAddress);
-            checkIfTimedOut(callbackContext, "Connecting the reader timed out", 15000);
-            mBluetoothGatt = device.connectGatt(cordova.getContext(), false, mGattCallback);
+            checkIfTimedOut(callbackContext, "Connecting GATT timed out", 15000);
+            mBluetoothGatt = device.connectGatt(cordova.getContext(), true, mGattCallback);
         } catch (Exception e) {
-            connectReaderCallbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Connect reader - " + e.getMessage()));
+            connectGattCallbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Connect GATT - " + e.getMessage()));
             releaseResources();
             updateConnectionState(BluetoothReader.STATE_DISCONNECTED);
         }
     }
 
-    private void disconnectReader(final CallbackContext callbackContext) {
+    private void disconnectGatt(final CallbackContext callbackContext) {
         try {
             releaseResources();
             this.updateConnectionState(BluetoothReader.STATE_DISCONNECTED);
-            if (connectReaderCallbackContext != null && !connectReaderCallbackContext.isFinished()) {
-                callbackContext.error(getAcsErrorCodeJSON(ERR_READER_CONNECTION_CANCELLED, null));
+            if (connectGattCallbackContext != null && !connectGattCallbackContext.isFinished()) {
+                callbackContext.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_CANCELLED, null));
                 return;
             }
             callbackContext.success();
         } catch (Exception e) {
-            callbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Disconnect reader - " + e.getMessage()));
+            callbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Disconnect GATT - " + e.getMessage()));
         }
     }
 
 
     private void initializeGattCallbackListeners() {
         mGattCallback.setOnConnectionStateChangeListener((final BluetoothGatt gatt, final int state, final int newState) -> {
-            this.updateConnectionState(state);
+            this.updateConnectionState(newState);
 
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                if (mBluetoothReaderManager != null) {
-                    mBluetoothReaderManager.detectReader(gatt, mGattCallback);
-                }
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                releaseResources();
+            if(newState == BluetoothProfile.STATE_CONNECTED && connectGattCallbackContext != null){
+                connectGattCallbackContext.success();
+                connectGattCallbackContext = null;
+            } else if (connectGattCallbackContext != null) {
+                connectGattCallbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Failed to connect to GATT"));
+                connectGattCallbackContext = null;
             }
         });
+    }
+
+    private void detectReader(CallbackContext callbackContext){
+        if(detectReaderCallbackContext != null){
+            detectReaderCallbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Operation cancelled by another request"));
+        }
+
+        if (mBluetoothReaderManager != null) {
+            detectReaderCallbackContext = callbackContext;
+            checkIfTimedOut(detectReaderCallbackContext, "Detecting the reader timed out", 5000);
+            mBluetoothReaderManager.detectReader (mBluetoothGatt, mGattCallback);
+        } else {
+            callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Bluetooth reader manager is not initialized"));
+        }
     }
 
     private void initializeBluetoothReaderManagerListeners() {
         mBluetoothReaderManager.setOnReaderDetectionListener((BluetoothReader bluetoothReader) -> {
             if (!(bluetoothReader instanceof Acr1255uj1Reader)) {
-                connectReaderCallbackContext.error(getAcsErrorCodeJSON(ERR_READER_TYPE_NOT_SUPPORTED, null));
-                this.updateConnectionState(BluetoothReader.STATE_DISCONNECTED);
+                detectReaderCallbackContext.error(getAcsErrorCodeJSON(ERR_READER_TYPE_NOT_SUPPORTED, null));
+                detectReaderCallbackContext = null;
+                updateConnectionState(BluetoothReader.STATE_DISCONNECTED);
                 releaseResources();
                 return;
             }
 
             mBluetoothReader = bluetoothReader;
             initializeBluetoothReaderListeners();
-            connectReaderCallbackContext.success();
+            if (detectReaderCallbackContext != null) {
+                detectReaderCallbackContext.success();
+                detectReaderCallbackContext = null;
+            }
         });
     }
 
@@ -689,12 +711,12 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
             customMessage = "Scan is already in progress";
         } else if (errorCode == ERR_SCAN_FAILED && customMessage == null) {
             customMessage = "Scan failed";
-        } else if (errorCode == ERR_READER_ALREADY_CONNECTED && customMessage == null) {
-            customMessage = "Reader already connected. Disconnect before connecting a new reader.";
-        } else if (errorCode == ERR_READER_CONNECTION_IN_PROGRESS && customMessage == null) {
-            customMessage = "Reader connection already in progress";
-        } else if (errorCode == ERR_READER_CONNECTION_CANCELLED && customMessage == null) {
-            customMessage = "Reader connection cancelled";
+        } else if (errorCode == ERR_GATT_ALREADY_CONNECTED && customMessage == null) {
+            customMessage = "GATT already connected. Disconnect before connecting a new reader.";
+        } else if (errorCode == ERR_GATT_CONNECTION_IN_PROGRESS && customMessage == null) {
+            customMessage = "GATT connection already in progress";
+        } else if (errorCode == ERR_GATT_CONNECTION_CANCELLED && customMessage == null) {
+            customMessage = "GATT connection cancelled";
         } else if (errorCode == ERR_READER_TYPE_NOT_SUPPORTED && customMessage == null) {
             customMessage = "Reader type is not supported. Currently only Acr1255uj1Reader is supported.";
         } else if (customMessage == null) {
