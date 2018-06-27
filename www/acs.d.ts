@@ -33,7 +33,7 @@ declare module 'cordova-plugin-acs' {
 
   export interface StatusMessage {
     code: number;
-    message: String;
+    message: string;
   }
 
   export interface BTDevice {
