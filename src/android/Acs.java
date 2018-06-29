@@ -241,7 +241,7 @@ public class Acs extends CordovaPlugin {
   }
 
   private void requestTurnOnBt(CallbackContext callbackContext) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
@@ -250,7 +250,7 @@ public class Acs extends CordovaPlugin {
       return;
     }
 
-    if (ccRequestBt != null && !ccRequestBt.isFinished()) {
+    if (ccRequestBt != null) {
       callbackContext.error(ERR_OPERATION_ALREADY_IN_PROGRESS);
       return;
     }
@@ -270,7 +270,7 @@ public class Acs extends CordovaPlugin {
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
 
-    if (requestCode == REQUEST_ENABLE_BT && ccRequestBt != null && !ccRequestBt.isFinished()) {
+    if (requestCode == REQUEST_ENABLE_BT && ccRequestBt != null) {
       if (resultCode == pluginActivity.RESULT_OK) {
         ccRequestBt.success();
       } else {
@@ -282,7 +282,7 @@ public class Acs extends CordovaPlugin {
 
 
   private void requestBtPermissions(CallbackContext callbackContext) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
@@ -291,7 +291,7 @@ public class Acs extends CordovaPlugin {
       return;
     }
 
-    if (ccRequestBtPermissions != null && !ccRequestBtPermissions.isFinished()) {
+    if (ccRequestBtPermissions != null) {
       callbackContext.error(ERR_OPERATION_ALREADY_IN_PROGRESS);
       return;
     }
@@ -307,7 +307,7 @@ public class Acs extends CordovaPlugin {
     switch (requestCode) {
       case REQUEST_PERMISSION_ACCESS_COARSE_LOCATION: {
         // If request is cancelled, the result arrays are empty.
-        if (ccRequestBtPermissions != null && !ccRequestBtPermissions.isFinished()) {
+        if (ccRequestBtPermissions != null) {
           if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             ccRequestBtPermissions.success();
           } else {
@@ -321,7 +321,7 @@ public class Acs extends CordovaPlugin {
   }
 
   private void authenticate(CallbackContext callbackContext) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
@@ -349,7 +349,7 @@ public class Acs extends CordovaPlugin {
 
 
   private void enableNotifications(CallbackContext callbackContext) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
@@ -376,7 +376,7 @@ public class Acs extends CordovaPlugin {
 
 
   private void transmitAdpuCommand(CallbackContext callbackContext, JSONArray data) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
@@ -398,7 +398,7 @@ public class Acs extends CordovaPlugin {
   }
 
   private void transmitEscapeCommand(CallbackContext callbackContext, JSONArray data) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
@@ -421,7 +421,7 @@ public class Acs extends CordovaPlugin {
 
 
   public void startScan(CallbackContext callbackContext) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
@@ -435,7 +435,7 @@ public class Acs extends CordovaPlugin {
       return;
     }
 
-    if (ccStartScan != null || !ccStartScan.isFinished()) {
+    if (ccStartScan != null) {
       callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_ALREADY_IN_PROGRESS, null));
       return;
     }
@@ -451,7 +451,7 @@ public class Acs extends CordovaPlugin {
           mBluetoothLeScanner.stopScan(mScanCallback);
         }
       }
-      if ((ccStartScan != null && !ccStartScan.isFinished())) {
+      if (ccStartScan != null) {
         ccStartScan.success();
         ccStartScan = null;
       }
@@ -463,11 +463,11 @@ public class Acs extends CordovaPlugin {
 
 
   public void stopScan(CallbackContext callbackContext) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
-    if ((ccStartScan == null || ccStartScan.isFinished() || !mScanning)) {
+    if (ccStartScan == null || !mScanning) {
       callbackContext.success();
       return;
     }
@@ -552,7 +552,7 @@ public class Acs extends CordovaPlugin {
 
 
   private void connectGatt(final CallbackContext callbackContext, JSONArray data) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
@@ -570,7 +570,7 @@ public class Acs extends CordovaPlugin {
       }
 
       // Check for connections in progress
-      if (ccConnectGatt != null && !ccConnectGatt.isFinished()) {
+      if (ccConnectGatt != null) {
         callbackContext.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_IN_PROGRESS, null));
         return;
       }
@@ -596,12 +596,12 @@ public class Acs extends CordovaPlugin {
   }
 
   private void disconnectGatt(final CallbackContext callbackContext) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
     releaseResources();
-    if (ccConnectGatt != null && !ccConnectGatt.isFinished()) {
+    if (ccConnectGatt != null) {
       ccConnectGatt.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_CANCELLED, null));
     }
     callbackContext.success();
@@ -610,14 +610,14 @@ public class Acs extends CordovaPlugin {
 
   private void initializeGattCallbackListeners() {
     mGattCallback.setOnConnectionStateChangeListener((final BluetoothGatt gatt, final int state, final int newState) -> {
-      if (ccGattConnectionState != null && !ccGattConnectionState.isFinished()) {
+      if (ccGattConnectionState != null) {
         switch (newState) {
           case BluetoothReader.STATE_DISCONNECTED:
             PluginResult off = new PluginResult(PluginResult.Status.OK, CON_DISCONNECTED);
             off.setKeepCallback(true);
             ccGattConnectionState.sendPluginResult(off);
 
-            if (ccConnectGatt != null && !ccConnectGatt.isFinished()) {
+            if (ccConnectGatt != null) {
               ccConnectGatt.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Failed to connect to GATT"));
               ccConnectGatt = null;
             }
@@ -627,7 +627,7 @@ public class Acs extends CordovaPlugin {
             on.setKeepCallback(true);
             ccGattConnectionState.sendPluginResult(on);
 
-            if (ccConnectGatt != null && !ccConnectGatt.isFinished()) {
+            if (ccConnectGatt != null) {
               ccConnectGatt.success();
               ccConnectGatt = null;
             }
@@ -648,11 +648,11 @@ public class Acs extends CordovaPlugin {
   }
 
   private void detectReader(CallbackContext callbackContext) {
-    if (callbackContext == null || callbackContext.isFinished()) {
+    if (callbackContext == null) {
       return;
     }
 
-    if (ccDetectReader != null && !ccDetectReader.isFinished()) {
+    if (ccDetectReader != null) {
       callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_ALREADY_IN_PROGRESS, null));
       return;
     }
@@ -674,7 +674,7 @@ public class Acs extends CordovaPlugin {
   private void initializeBluetoothReaderManagerListeners() {
     mBluetoothReaderManager.setOnReaderDetectionListener((BluetoothReader bluetoothReader) -> {
       if (!(bluetoothReader instanceof Acr1255uj1Reader)) {
-        if (ccDetectReader != null && !ccDetectReader.isFinished()) {
+        if (ccDetectReader != null) {
           ccDetectReader.error(getAcsErrorCodeJSON(ERR_READER_TYPE_NOT_SUPPORTED, null));
           ccDetectReader = null;
         }
@@ -684,7 +684,7 @@ public class Acs extends CordovaPlugin {
 
       mBluetoothReader = bluetoothReader;
       initializeBluetoothReaderListeners();
-      if (ccDetectReader != null && !ccDetectReader.isFinished()) {
+      if (ccDetectReader != null) {
         ccDetectReader.success();
         ccDetectReader = null;
       }
@@ -693,7 +693,7 @@ public class Acs extends CordovaPlugin {
 
   private void initializeBluetoothReaderListeners() {
     mBluetoothReader.setOnCardStatusChangeListener((BluetoothReader bluetoothReader, int cardStatus) -> {
-      if (ccCardStatus != null && !ccCardStatus.isFinished()) {
+      if (ccCardStatus != null) {
         switch (cardStatus) {
           case BluetoothReader.CARD_STATUS_ABSENT:
             PluginResult absent = new PluginResult(PluginResult.Status.OK, CARD_ABSENT);
@@ -720,7 +720,7 @@ public class Acs extends CordovaPlugin {
     });
 
     mBluetoothReader.setOnResponseApduAvailableListener((BluetoothReader bluetoothReader, byte[] response, int errorCode) -> {
-      if (ccAdpuResponse != null && !ccAdpuResponse.isFinished()) {
+      if (ccAdpuResponse != null) {
         if (bytesToHex(response) == "6300") {
           PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, getAcsErrorCodeJSON(ERR_UNKNOWN, "ADPU response - the operation failed"));
           pluginRes.setKeepCallback(true);
@@ -744,7 +744,7 @@ public class Acs extends CordovaPlugin {
     });
 
     mBluetoothReader.setOnEscapeResponseAvailableListener((BluetoothReader bluetoothReader, byte[] response, int errorCode) -> {
-      if (ccEscapeResponse != null && !ccEscapeResponse.isFinished()) {
+      if (ccEscapeResponse != null) {
         if (response != null) {
           PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, byteArrayToJSON(response));
           pluginRes.setKeepCallback(true);
@@ -796,6 +796,11 @@ public class Acs extends CordovaPlugin {
   private void checkIfTimedOut(CallbackContext callbackContext, String msg, int delay) {
     final Handler handler = new Handler(Looper.getMainLooper());
     handler.postDelayed(() -> {
+      if(callbackContext == null){
+        handler.removeCallbacksAndMessages(null);
+        return;
+      }
+      
       if (!callbackContext.isFinished()) {
         callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_TIMED_OUT, msg));
       }
