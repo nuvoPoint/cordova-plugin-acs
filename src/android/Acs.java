@@ -425,7 +425,7 @@ public class Acs extends CordovaPlugin {
       return;
     }
 
-    if (mBluetoothManager == null || mBluetoothAdapter == null || mBluetoothAdapter == null || mBluetoothLeScanner != null) {
+    if (mBluetoothManager == null || mBluetoothAdapter == null || mBluetoothAdapter == null || mBluetoothLeScanner == null) {
       callbackContext.error(getAcsErrorCodeJSON(ERR_BT_ERROR, null));
       return;
     }
