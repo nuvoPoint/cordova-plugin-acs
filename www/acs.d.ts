@@ -9,17 +9,17 @@ declare module 'cordova-plugin-acs' {
 
   export function authenticate(): Promise<string>;
 
-  export function listenForAdpuResponse(resolve, reject): string;
+  export function listenForAdpuResponse(resolve, reject): number[];
 
-  export function listenForEscapeResponse(resolve, reject): string;
+  export function listenForEscapeResponse(resolve, reject): number[];
 
-  export function listenForCardStatus(resolve, reject): StatusMessage;
+  export function listenForCardStatus(resolve, reject): AcsCardStatus;
 
-  export function listenForConnectionState(resolve, reject): StatusMessage;
+  export function listenForConnectionState(resolve, reject): AcsConnectionState;
 
-  export function listenForNfcConnectionState(resolve, reject): number;
+  export function listenForNfcConnectionState(resolve, reject): AcsConnectionState;
 
-  export function listenForBtConnectionState(resolve, reject): number;
+  export function listenForBtConnectionState(resolve, reject): AcsConnectionState;
 
   export function startScan(resolve, reject): BTDevice;
 
@@ -54,7 +54,7 @@ declare module 'cordova-plugin-acs' {
     ERR_OPERATION_TIMED_OUT = 3,
     ERR_BT_IS_OFF = 4,
     ERR_BT_ERROR = 5,
-    ERR_SCAN_IN_PROGRESS = 6,
+    ERR_OPERATION_ALREADY_IN_PROGRESS = 6,
     ERR_SCAN_FAILED = 7,
     ERR_GATT_ALREADY_CONNECTED = 8,
     ERR_GATT_CONNECTION_IN_PROGRESS = 9,
@@ -63,7 +63,6 @@ declare module 'cordova-plugin-acs' {
   }
 
   export enum AcsCardStatus {
-    CARD_UNKNOWN = 0,
     CARD_ABSENT = 1,
     CARD_PRESENT = 2,
     CARD_POWER_SAVING_MODE = 3,
@@ -71,10 +70,9 @@ declare module 'cordova-plugin-acs' {
   }
 
   export enum AcsConnectionState {
-    CON_UNKNOWN = 0,
     CON_DISCONNECTED = 1,
     CON_CONNECTED = 2,
-    CON_CONNECTING = 3,
-    CON_DISCONNECTING = 4,
+    CON_DISCONNECTING = 3,
+    CON_CONNECTING = 4,
   }
 }

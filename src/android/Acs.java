@@ -18,7 +18,6 @@ import android.content.pm.PackageManager;
 import android.nfc.NfcAdapter;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.ActivityCompat;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -35,7 +34,7 @@ import org.json.JSONArray;
 import com.acs.bluetooth.*;
 import com.google.gson.Gson;
 
-public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class Acs extends CordovaPlugin {
   private static final String CONNECT_GATT = "connectGatt";
   private static final String DISCONNECT_GATT = "disconnectGatt";
   private static final String DETECT_READER = "detectReader";
@@ -54,7 +53,6 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
   private static final String REQUEST_BT = "requestBt";
   private static final String REQUEST_BT_PERMISSIONS = "requestBtPermissions";
 
-
   private static final int REQUEST_ENABLE_BT = 1;
   private static final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION = 2;
 
@@ -66,27 +64,24 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
   private static final int ERR_OPERATION_TIMED_OUT = 3;
   private static final int ERR_BT_IS_OFF = 4;
   private static final int ERR_BT_ERROR = 5;
-  private static final int ERR_SCAN_IN_PROGRESS = 6;
+  private static final int ERR_OPERATION_ALREADY_IN_PROGRESS = 6;
   private static final int ERR_SCAN_FAILED = 7;
   private static final int ERR_GATT_ALREADY_CONNECTED = 8;
   private static final int ERR_GATT_CONNECTION_IN_PROGRESS = 9;
   private static final int ERR_GATT_CONNECTION_CANCELLED = 10;
   private static final int ERR_READER_TYPE_NOT_SUPPORTED = 11;
 
-
   /* Card status codes */
-  private static final int CARD_UNKNOWN = 0;
   private static final int CARD_ABSENT = 1;
   private static final int CARD_PRESENT = 2;
   private static final int CARD_POWER_SAVING_MODE = 3;
   private static final int CARD_POWERED = 4;
 
   /* Connection state codes */
-  private static final int CON_UNKNOWN = 0;
   private static final int CON_DISCONNECTED = 1;
   private static final int CON_CONNECTED = 2;
-  private static final int CON_CONNECTING = 3;
-  private static final int CON_DISCONNECTING = 4;
+  private static final int CON_DISCONNECTING = 3;
+  private static final int CON_CONNECTING = 4;
 
 
   private Activity pluginActivity;
@@ -101,24 +96,22 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
   //For Scanning
   private boolean mScanning;
-  private Handler mHandler = new Handler();
-  private static final long SCAN_PERIOD = 20000;
+  private Handler mScanHandler = new Handler();
   private ArrayList<BTScanResult> foundDevices;
+  private static final long SCAN_PERIOD = 20000;
 
   // Callback contexts
-  private CallbackContext startScanCallbackContext;
-  private CallbackContext connectGattCallbackContext;
-  private CallbackContext cardStatusCallbackContext;
-  private CallbackContext adpuResponseCallbackContext;
-  private CallbackContext escapeResponseCallbackContext;
-  private CallbackContext connectionStateCallbackContext;
-  private CallbackContext requestBtCallbackContext;
-  private CallbackContext requestBtPermissionsCallbackContext;
-  private CallbackContext nfcConnectionStateCallbackContext;
-  private CallbackContext btConnectionStateCallbackContext;
-  private CallbackContext detectReaderCallbackContext;
-
-  private int currentState = BluetoothReader.STATE_DISCONNECTED;
+  private CallbackContext ccAdpuResponse;
+  private CallbackContext ccBtConnectionState;
+  private CallbackContext ccCardStatus;
+  private CallbackContext ccConnectGatt;
+  private CallbackContext ccConnectionState;
+  private CallbackContext ccDetectReader;
+  private CallbackContext ccEscapeResponse;
+  private CallbackContext ccNfcConnectionState;
+  private CallbackContext ccRequestBt;
+  private CallbackContext ccRequestBtPermissions;
+  private CallbackContext ccStartScan;
 
   @Override
   public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -136,8 +129,9 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
   @Override
   public void onDestroy() {
-    super.onDestroy();
     pluginActivity.unregisterReceiver(mReceiver);
+    releaseResources();
+    super.onDestroy();
   }
 
 
@@ -148,42 +142,54 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
       if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
         final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
-
         switch (state) {
           case BluetoothAdapter.STATE_OFF:
-            updateConnectionState(BluetoothReader.STATE_DISCONNECTED);
-            PluginResult pluginRes1 = new PluginResult(PluginResult.Status.OK, 0);
-            pluginRes1.setKeepCallback(true);
-            btConnectionStateCallbackContext.sendPluginResult(pluginRes1);
-            break;
-          case BluetoothAdapter.STATE_TURNING_ON:
+            PluginResult off = new PluginResult(PluginResult.Status.OK, CON_DISCONNECTED);
+            off.setKeepCallback(true);
+            ccBtConnectionState.sendPluginResult(off);
             break;
           case BluetoothAdapter.STATE_ON:
+            PluginResult on = new PluginResult(PluginResult.Status.OK, CON_CONNECTED);
+            on.setKeepCallback(true);
+            ccBtConnectionState.sendPluginResult(on);
+
             mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
-            PluginResult pluginRes2 = new PluginResult(PluginResult.Status.OK, 1);
-            pluginRes2.setKeepCallback(true);
-            btConnectionStateCallbackContext.sendPluginResult(pluginRes2);
             break;
           case BluetoothAdapter.STATE_TURNING_OFF:
+            PluginResult turningOff = new PluginResult(PluginResult.Status.OK, CON_DISCONNECTING);
+            turningOff.setKeepCallback(true);
+            ccBtConnectionState.sendPluginResult(turningOff);
+
             releaseResources();
+            break;
+          case BluetoothAdapter.STATE_TURNING_ON:
+            PluginResult turningOn = new PluginResult(PluginResult.Status.OK, CON_CONNECTING);
+            turningOn.setKeepCallback(true);
+            ccBtConnectionState.sendPluginResult(turningOn);
             break;
         }
       } else if (NfcAdapter.ACTION_ADAPTER_STATE_CHANGED.equals(action)) {
         final int state = intent.getIntExtra(NfcAdapter.EXTRA_ADAPTER_STATE, NfcAdapter.STATE_OFF);
         switch (state) {
           case NfcAdapter.STATE_OFF:
-            PluginResult pluginRes1 = new PluginResult(PluginResult.Status.OK, 0);
-            pluginRes1.setKeepCallback(true);
-            nfcConnectionStateCallbackContext.sendPluginResult(pluginRes1);
-            break;
-          case NfcAdapter.STATE_TURNING_OFF:
+            PluginResult off = new PluginResult(PluginResult.Status.OK, CON_DISCONNECTED);
+            off.setKeepCallback(true);
+            ccNfcConnectionState.sendPluginResult(off);
             break;
           case NfcAdapter.STATE_ON:
-            PluginResult pluginRes2 = new PluginResult(PluginResult.Status.OK, 1);
-            pluginRes2.setKeepCallback(true);
-            nfcConnectionStateCallbackContext.sendPluginResult(pluginRes2);
+            PluginResult on = new PluginResult(PluginResult.Status.OK, CON_CONNECTED);
+            on.setKeepCallback(true);
+            ccNfcConnectionState.sendPluginResult(on);
+            break;
+          case NfcAdapter.STATE_TURNING_OFF:
+            PluginResult turningOff = new PluginResult(PluginResult.Status.OK, CON_DISCONNECTING);
+            turningOff.setKeepCallback(true);
+            ccNfcConnectionState.sendPluginResult(turningOff);
             break;
           case NfcAdapter.STATE_TURNING_ON:
+            PluginResult turningOn = new PluginResult(PluginResult.Status.OK, CON_CONNECTING);
+            turningOn.setKeepCallback(true);
+            ccNfcConnectionState.sendPluginResult(turningOn);
             break;
         }
       }
@@ -204,17 +210,17 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     } else if (action.equalsIgnoreCase(STOP_SCAN)) {
       cordova.getThreadPool().execute(() -> stopScan(callbackContext));
     } else if (action.equalsIgnoreCase(LISTEN_FOR_CONNECTION_STATE)) {
-      connectionStateCallbackContext = callbackContext;
+      ccConnectionState = callbackContext;
     } else if (action.equalsIgnoreCase(LISTEN_FOR_ADPU_RESPONSE)) {
-      adpuResponseCallbackContext = callbackContext;
+      ccAdpuResponse = callbackContext;
     } else if (action.equalsIgnoreCase(LISTEN_FOR_ESCAPE_RESPONSE)) {
-      escapeResponseCallbackContext = callbackContext;
+      ccEscapeResponse = callbackContext;
     } else if (action.equalsIgnoreCase(LISTEN_FOR_CARD_STATUS)) {
-      cardStatusCallbackContext = callbackContext;
+      ccCardStatus = callbackContext;
     } else if (action.equalsIgnoreCase(LISTEN_FOR_NFC_CONNECTION_STATE)) {
-      nfcConnectionStateCallbackContext = callbackContext;
+      ccNfcConnectionState = callbackContext;
     } else if (action.equalsIgnoreCase(LISTEN_FOR_BT_CONNECTION_STATE)) {
-      btConnectionStateCallbackContext = callbackContext;
+      ccBtConnectionState = callbackContext;
     } else if (action.equalsIgnoreCase(AUTHENTICATE)) {
       cordova.getThreadPool().execute(() -> authenticate(callbackContext));
     } else if (action.equalsIgnoreCase(ENABLE_NOTIFICATIONS)) {
@@ -235,24 +241,28 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
   }
 
   private void requestTurnOnBt(CallbackContext callbackContext) {
-    if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-      requestBtCallbackContext = callbackContext;
-      Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-      pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-    } else if (callbackContext != null && !callbackContext.isFinished()) {
-      callbackContext.success();
+    if (callbackContext == null || callbackContext.isFinished()) {
+      return;
     }
-  }
 
-
-  private void requestBtPermissions(CallbackContext callbackContext) {
-    if (!cordova.hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-      requestBtPermissionsCallbackContext = callbackContext;
-      String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
-      cordova.requestPermissions(this, REQUEST_PERMISSION_ACCESS_COARSE_LOCATION, permissions);
-    } else if (callbackContext != null && !callbackContext.isFinished()) {
-      callbackContext.success();
+    if (mBluetoothAdapter == null) {
+      callbackContext.error(getAcsErrorCodeJSON(ERR_BT_ERROR, "Critical error. Bluetooth adapter is not initialized"));
+      return;
     }
+
+    if (ccRequestBt != null && !ccRequestBt.isFinished()) {
+      callbackContext.error(ERR_OPERATION_ALREADY_IN_PROGRESS);
+      return;
+    }
+
+    if (mBluetoothAdapter.isEnabled()) {
+      callbackContext.success();
+      return;
+    }
+
+    ccRequestBt = callbackContext;
+    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+    pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
   }
 
 
@@ -260,13 +270,35 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
 
-    if (requestCode == REQUEST_ENABLE_BT && requestBtCallbackContext != null && !requestBtCallbackContext.isFinished()) {
+    if (requestCode == REQUEST_ENABLE_BT && ccRequestBt != null && !ccRequestBt.isFinished()) {
       if (resultCode == pluginActivity.RESULT_OK) {
-        requestBtCallbackContext.success();
+        ccRequestBt.success();
       } else {
-        requestBtCallbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Failed to turn on BT"));
+        ccRequestBt.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Failed to turn on BT"));
       }
+      ccRequestBt = null;
     }
+  }
+
+
+  private void requestBtPermissions(CallbackContext callbackContext) {
+    if (callbackContext == null || callbackContext.isFinished()) {
+      return;
+    }
+
+    if (cordova.hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+      callbackContext.success();
+      return;
+    }
+
+    if (ccRequestBtPermissions != null && !ccRequestBtPermissions.isFinished()) {
+      callbackContext.error(ERR_OPERATION_ALREADY_IN_PROGRESS);
+      return;
+    }
+
+    ccRequestBtPermissions = callbackContext;
+    String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
+    cordova.requestPermissions(this, REQUEST_PERMISSION_ACCESS_COARSE_LOCATION, permissions);
   }
 
 
@@ -275,37 +307,24 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     switch (requestCode) {
       case REQUEST_PERMISSION_ACCESS_COARSE_LOCATION: {
         // If request is cancelled, the result arrays are empty.
-        if (requestBtPermissionsCallbackContext != null && !requestBtPermissionsCallbackContext.isFinished()) {
+        if (ccRequestBtPermissions != null && !ccRequestBtPermissions.isFinished()) {
           if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            requestBtPermissionsCallbackContext.success();
+            ccRequestBtPermissions.success();
           } else {
-            requestBtPermissionsCallbackContext.error("Bluetooth permissions not granted");
+            ccRequestBtPermissions.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Bluetooth permissions not granted"));
           }
+          ccRequestBtPermissions = null;
         }
-        return;
+        break;
       }
     }
   }
-
-  @Override
-  public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-    switch (requestCode) {
-      case REQUEST_PERMISSION_ACCESS_COARSE_LOCATION: {
-        // If request is cancelled, the result arrays are empty.
-        if (requestBtPermissionsCallbackContext != null && !requestBtPermissionsCallbackContext.isFinished()) {
-          if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            requestBtPermissionsCallbackContext.success();
-          } else {
-            requestBtPermissionsCallbackContext.error("Bluetooth permissions not granted");
-          }
-        }
-        return;
-      }
-    }
-  }
-
 
   private void authenticate(CallbackContext callbackContext) {
+    if (callbackContext == null || callbackContext.isFinished()) {
+      return;
+    }
+
     if (mBluetoothReader == null) {
       callbackContext.error(getAcsErrorCodeJSON(ERR_READER_NOT_INITIALIZED, null));
       return;
@@ -321,14 +340,19 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
     final byte[] DEFAULT_1255_MASTER_KEY = new byte[]{65, 67, 82, 49, 50, 53, 53, 85, 45, 74, 49, 32, 65, 117, 116, 104};
     boolean result = mBluetoothReader.authenticate(DEFAULT_1255_MASTER_KEY);
-    checkIfTimedOut(callbackContext, "Authentication operation timed out", 2000);
     if (!result) {
       callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Authentication operation was unsuccessful"));
+      return;
     }
+    checkIfTimedOut(callbackContext, "Authentication operation timed out", 2000);
   }
 
 
   private void enableNotifications(CallbackContext callbackContext) {
+    if (callbackContext == null || callbackContext.isFinished()) {
+      return;
+    }
+
     if (mBluetoothReader == null) {
       callbackContext.error(getAcsErrorCodeJSON(ERR_READER_NOT_INITIALIZED, null));
       return;
@@ -343,14 +367,19 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
     });
 
     boolean result = mBluetoothReader.enableNotification(true);
-    checkIfTimedOut(callbackContext, "Enable notifications operation timed out", 2000);
     if (!result) {
       callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Enable Notifications operation was unsuccessful"));
+      return;
     }
+    checkIfTimedOut(callbackContext, "Enable notifications operation timed out", 2000);
   }
 
 
   private void transmitAdpuCommand(CallbackContext callbackContext, JSONArray data) {
+    if (callbackContext == null || callbackContext.isFinished()) {
+      return;
+    }
+
     if (mBluetoothReader == null) {
       callbackContext.error(getAcsErrorCodeJSON(ERR_READER_NOT_INITIALIZED, null));
       return;
@@ -369,6 +398,10 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
   }
 
   private void transmitEscapeCommand(CallbackContext callbackContext, JSONArray data) {
+    if (callbackContext == null || callbackContext.isFinished()) {
+      return;
+    }
+
     if (mBluetoothReader == null) {
       callbackContext.error(getAcsErrorCodeJSON(ERR_READER_NOT_INITIALIZED, null));
       return;
@@ -388,34 +421,40 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
 
   public void startScan(CallbackContext callbackContext) {
-    if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-      callbackContext.error(getAcsErrorCodeJSON(ERR_BT_IS_OFF, null));
+    if (callbackContext == null || callbackContext.isFinished()) {
       return;
     }
 
-    if (mBluetoothManager == null || mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+    if (mBluetoothManager == null || mBluetoothAdapter == null || mBluetoothAdapter == null || mBluetoothLeScanner != null) {
       callbackContext.error(getAcsErrorCodeJSON(ERR_BT_ERROR, null));
       return;
     }
 
-    if (startScanCallbackContext != null) {
-      callbackContext.error(getAcsErrorCodeJSON(ERR_SCAN_IN_PROGRESS, null));
+    if (!mBluetoothAdapter.isEnabled()) {
+      callbackContext.error(getAcsErrorCodeJSON(ERR_BT_IS_OFF, null));
+      return;
+    }
+
+    if (ccStartScan != null || !ccStartScan.isFinished()) {
+      callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_ALREADY_IN_PROGRESS, null));
       return;
     }
 
     foundDevices = new ArrayList<>();
-    startScanCallbackContext = callbackContext;
+    ccStartScan = callbackContext;
     pluginActivity.startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_ENABLE_BT);
 
-    mHandler.postDelayed(() -> {
+    mScanHandler.postDelayed(() -> {
       if (mScanning) {
         mScanning = false;
-        if (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()) {
+        if (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled() && mBluetoothLeScanner != null) {
           mBluetoothLeScanner.stopScan(mScanCallback);
         }
       }
-      startScanCallbackContext.success();
-      startScanCallbackContext = null;
+      if ((ccStartScan != null && !ccStartScan.isFinished())) {
+        ccStartScan.success();
+        ccStartScan = null;
+      }
     }, SCAN_PERIOD);
 
     mScanning = true;
@@ -424,30 +463,31 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
 
   public void stopScan(CallbackContext callbackContext) {
-    if (startScanCallbackContext == null || !mScanning) {
-      if (callbackContext != null) {
-        callbackContext.success();
-      }
+    if (callbackContext == null || callbackContext.isFinished()) {
       return;
     }
 
-    if (mBluetoothManager == null || mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-      if (callbackContext != null) {
-        callbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, null));
-      }
-      return;
-    }
-
-    mHandler.removeCallbacksAndMessages(null);
-    mScanning = false;
-    if (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()) {
-      mBluetoothLeScanner.stopScan(mScanCallback);
-    }
-    startScanCallbackContext.success();
-    startScanCallbackContext = null;
-    if (callbackContext != null) {
+    if ((ccStartScan == null || ccStartScan.isFinished() || !mScanning)) {
       callbackContext.success();
+      return;
     }
+
+    if (mBluetoothManager == null || mBluetoothAdapter == null) {
+      callbackContext.error(getAcsErrorCodeJSON(ERR_BT_ERROR, null));
+      return;
+    }
+
+    if (!mBluetoothAdapter.isEnabled()) {
+      callbackContext.error(getAcsErrorCodeJSON(ERR_BT_IS_OFF, null));
+      return;
+    }
+
+    mScanHandler.removeCallbacksAndMessages(null);
+    mScanning = false;
+    mBluetoothLeScanner.stopScan(mScanCallback);
+    ccStartScan.success();
+    ccStartScan = null;
+    callbackContext.success();
   }
 
 
@@ -462,11 +502,11 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
           foundDevices.add(resultBt);
           PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
           pluginRes.setKeepCallback(true);
-          startScanCallbackContext.sendPluginResult(pluginRes);
+          ccStartScan.sendPluginResult(pluginRes);
         } catch (Throwable e) {
           PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, getAcsErrorCodeJSON(ERR_UNKNOWN, e.getMessage()));
           pluginRes.setKeepCallback(true);
-          startScanCallbackContext.sendPluginResult(pluginRes);
+          ccStartScan.sendPluginResult(pluginRes);
         }
       }
     }
@@ -482,11 +522,11 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
             foundDevices.add(resultBt);
             PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, resultStr);
             pluginRes.setKeepCallback(true);
-            startScanCallbackContext.sendPluginResult(pluginRes);
+            ccStartScan.sendPluginResult(pluginRes);
           } catch (Throwable e) {
             PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, getAcsErrorCodeJSON(ERR_UNKNOWN, e.getMessage()));
             pluginRes.setKeepCallback(true);
-            startScanCallbackContext.sendPluginResult(pluginRes);
+            ccStartScan.sendPluginResult(pluginRes);
           }
         }
       }
@@ -494,7 +534,7 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
     @Override
     public void onScanFailed(int errorCode) {
-      startScanCallbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Scan failed - " + errorCode));
+      ccStartScan.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Scan failed - " + errorCode));
     }
   };
 
@@ -512,27 +552,32 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
 
   private void connectGatt(final CallbackContext callbackContext, JSONArray data) {
+    if (callbackContext == null || callbackContext.isFinished()) {
+      return;
+    }
+
     try {
+      // Check if BT is enabled
       if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
         callbackContext.error(getAcsErrorCodeJSON(ERR_BT_IS_OFF, null));
         return;
       }
 
-
       // Check for already existing connections
-      if (currentState != BluetoothReader.STATE_DISCONNECTED) {
+      if (!mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT).isEmpty()) {
         callbackContext.error(getAcsErrorCodeJSON(ERR_GATT_ALREADY_CONNECTED, null));
         return;
       }
 
-      if (connectGattCallbackContext != null && !connectGattCallbackContext.isFinished()) {
+      // Check for connections in progress
+      if (ccConnectGatt != null && !ccConnectGatt.isFinished()) {
         callbackContext.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_IN_PROGRESS, null));
         return;
       }
 
       // Get the device address
       String myDeviceAddress = data.getString(0);
-      connectGattCallbackContext = callbackContext;
+      ccConnectGatt = callbackContext;
 
 
       // Create a new GATT Callback and initialize listeners
@@ -542,53 +587,85 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
       // Get the device by it's address and connect to it with the callBack
       final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(myDeviceAddress);
-      checkIfTimedOut(callbackContext, "Connecting GATT timed out", 15000);
+      checkIfTimedOut(callbackContext, "Connecting GATT timed out", 10000);
       mBluetoothGatt = device.connectGatt(cordova.getContext(), true, mGattCallback);
     } catch (Exception e) {
-      connectGattCallbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Connect GATT - " + e.getMessage()));
+      ccConnectGatt.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Connect GATT - " + e.getMessage()));
       releaseResources();
-      updateConnectionState(BluetoothReader.STATE_DISCONNECTED);
     }
   }
 
   private void disconnectGatt(final CallbackContext callbackContext) {
-    try {
-      releaseResources();
-      this.updateConnectionState(BluetoothReader.STATE_DISCONNECTED);
-      if (connectGattCallbackContext != null && !connectGattCallbackContext.isFinished()) {
-        callbackContext.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_CANCELLED, null));
-        return;
-      }
-      callbackContext.success();
-    } catch (Exception e) {
-      callbackContext.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Disconnect GATT - " + e.getMessage()));
+    if (callbackContext == null || callbackContext.isFinished()) {
+      return;
     }
+
+    releaseResources();
+    if (ccConnectGatt != null && !ccConnectGatt.isFinished()) {
+      ccConnectGatt.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_CANCELLED, null));
+    }
+    callbackContext.success();
   }
 
 
   private void initializeGattCallbackListeners() {
     mGattCallback.setOnConnectionStateChangeListener((final BluetoothGatt gatt, final int state, final int newState) -> {
-      this.updateConnectionState(newState);
+      if (ccConnectionState != null && !ccConnectionState.isFinished()) {
+        switch (newState) {
+          case BluetoothReader.STATE_DISCONNECTED:
+            PluginResult off = new PluginResult(PluginResult.Status.OK, CON_DISCONNECTED);
+            off.setKeepCallback(true);
+            ccConnectionState.sendPluginResult(off);
 
-      if (newState == BluetoothProfile.STATE_CONNECTED && connectGattCallbackContext != null) {
-        connectGattCallbackContext.success();
-        connectGattCallbackContext = null;
-      } else if (connectGattCallbackContext != null) {
-        connectGattCallbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Failed to connect to GATT"));
-        connectGattCallbackContext = null;
+            if (ccConnectGatt != null && !ccConnectGatt.isFinished()) {
+              ccConnectGatt.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Failed to connect to GATT"));
+              ccConnectGatt = null;
+            }
+            break;
+          case BluetoothReader.STATE_CONNECTED:
+            PluginResult on = new PluginResult(PluginResult.Status.OK, CON_CONNECTED);
+            on.setKeepCallback(true);
+            ccConnectionState.sendPluginResult(on);
+
+            if (ccConnectGatt != null && !ccConnectGatt.isFinished()) {
+              ccConnectGatt.success();
+              ccConnectGatt = null;
+            }
+            break;
+          case BluetoothReader.STATE_DISCONNECTING:
+            PluginResult turningOff = new PluginResult(PluginResult.Status.OK, CON_DISCONNECTING);
+            turningOff.setKeepCallback(true);
+            ccConnectionState.sendPluginResult(turningOff);
+            break;
+          case BluetoothReader.STATE_CONNECTING:
+            PluginResult turningOn = new PluginResult(PluginResult.Status.OK, CON_CONNECTING);
+            turningOn.setKeepCallback(true);
+            ccConnectionState.sendPluginResult(turningOn);
+            break;
+        }
       }
     });
   }
 
   private void detectReader(CallbackContext callbackContext) {
-    if (detectReaderCallbackContext != null) {
-      detectReaderCallbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Operation cancelled by another request"));
+    if (callbackContext == null || callbackContext.isFinished()) {
+      return;
+    }
+
+    if (ccDetectReader != null && !ccDetectReader.isFinished()) {
+      callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_ALREADY_IN_PROGRESS, null));
+      return;
     }
 
     if (mBluetoothReaderManager != null) {
-      detectReaderCallbackContext = callbackContext;
-      checkIfTimedOut(detectReaderCallbackContext, "Detecting the reader timed out", 5000);
-      mBluetoothReaderManager.detectReader(mBluetoothGatt, mGattCallback);
+      ccDetectReader = callbackContext;
+      boolean result = mBluetoothReaderManager.detectReader(mBluetoothGatt, mGattCallback);
+      if (!result) {
+        ccDetectReader.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Detect reader operation was unsuccessful"));
+        ccDetectReader = null;
+        return;
+      }
+      checkIfTimedOut(ccDetectReader, "Detecting the reader timed out", 5000);
     } else {
       callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Bluetooth reader manager is not initialized"));
     }
@@ -597,81 +674,103 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
   private void initializeBluetoothReaderManagerListeners() {
     mBluetoothReaderManager.setOnReaderDetectionListener((BluetoothReader bluetoothReader) -> {
       if (!(bluetoothReader instanceof Acr1255uj1Reader)) {
-        detectReaderCallbackContext.error(getAcsErrorCodeJSON(ERR_READER_TYPE_NOT_SUPPORTED, null));
-        detectReaderCallbackContext = null;
-        updateConnectionState(BluetoothReader.STATE_DISCONNECTED);
+        if (ccDetectReader != null && !ccDetectReader.isFinished()) {
+          ccDetectReader.error(getAcsErrorCodeJSON(ERR_READER_TYPE_NOT_SUPPORTED, null));
+          ccDetectReader = null;
+        }
         releaseResources();
         return;
       }
 
       mBluetoothReader = bluetoothReader;
       initializeBluetoothReaderListeners();
-      if (detectReaderCallbackContext != null) {
-        detectReaderCallbackContext.success();
-        detectReaderCallbackContext = null;
+      if (ccDetectReader != null && !ccDetectReader.isFinished()) {
+        ccDetectReader.success();
+        ccDetectReader = null;
       }
     });
   }
 
   private void initializeBluetoothReaderListeners() {
     mBluetoothReader.setOnCardStatusChangeListener((BluetoothReader bluetoothReader, int cardStatus) -> {
-      if (cardStatusCallbackContext != null) {
-        PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, getCardStatusJSON(cardStatus));
-        pluginRes.setKeepCallback(true);
-        cardStatusCallbackContext.sendPluginResult(pluginRes);
+      if (ccCardStatus != null && !ccCardStatus.isFinished()) {
+        switch (cardStatus) {
+          case BluetoothReader.CARD_STATUS_ABSENT:
+            PluginResult absent = new PluginResult(PluginResult.Status.OK, CARD_ABSENT);
+            absent.setKeepCallback(true);
+            ccCardStatus.sendPluginResult(absent);
+            break;
+          case BluetoothReader.CARD_STATUS_PRESENT:
+            PluginResult present = new PluginResult(PluginResult.Status.OK, CARD_PRESENT);
+            present.setKeepCallback(true);
+            ccCardStatus.sendPluginResult(present);
+            break;
+          case BluetoothReader.CARD_STATUS_POWER_SAVING_MODE:
+            PluginResult powerSaving = new PluginResult(PluginResult.Status.OK, CARD_POWER_SAVING_MODE);
+            powerSaving.setKeepCallback(true);
+            ccCardStatus.sendPluginResult(powerSaving);
+            break;
+          case BluetoothReader.CARD_STATUS_POWERED:
+            PluginResult powered = new PluginResult(PluginResult.Status.OK, CARD_POWERED);
+            powered.setKeepCallback(true);
+            ccCardStatus.sendPluginResult(powered);
+            break;
+        }
       }
     });
 
     mBluetoothReader.setOnResponseApduAvailableListener((BluetoothReader bluetoothReader, byte[] response, int errorCode) -> {
-      if (adpuResponseCallbackContext != null) {
+      if (ccAdpuResponse != null && !ccAdpuResponse.isFinished()) {
         if (bytesToHex(response) == "6300") {
           PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, getAcsErrorCodeJSON(ERR_UNKNOWN, "ADPU response - the operation failed"));
           pluginRes.setKeepCallback(true);
-          adpuResponseCallbackContext.sendPluginResult(pluginRes);
+          ccAdpuResponse.sendPluginResult(pluginRes);
         } else if (bytesToHex(response) == "6A81") {
           PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, getAcsErrorCodeJSON(ERR_UNKNOWN, "ADPU response - the operation is not supported"));
           pluginRes.setKeepCallback(true);
-          adpuResponseCallbackContext.sendPluginResult(pluginRes);
+          ccAdpuResponse.sendPluginResult(pluginRes);
         } else if (response != null) {
-//          Remove last 2 entries of the array as they are not part of the ID
-          response = Arrays.copyOf(response, response.length-2);
+          // Remove last 2 entries of the array as they are not part of the ID
+          response = Arrays.copyOf(response, response.length - 2);
           PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, byteArrayToJSON(response));
           pluginRes.setKeepCallback(true);
-          adpuResponseCallbackContext.sendPluginResult(pluginRes);
+          ccAdpuResponse.sendPluginResult(pluginRes);
         } else {
           PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, getAcsErrorCodeJSON(ERR_UNKNOWN, "ADPU response error - " + errorCode));
           pluginRes.setKeepCallback(true);
-          adpuResponseCallbackContext.sendPluginResult(pluginRes);
+          ccAdpuResponse.sendPluginResult(pluginRes);
         }
       }
     });
 
     mBluetoothReader.setOnEscapeResponseAvailableListener((BluetoothReader bluetoothReader, byte[] response, int errorCode) -> {
-      if (escapeResponseCallbackContext != null) {
+      if (ccEscapeResponse != null && !ccEscapeResponse.isFinished()) {
         if (response != null) {
           PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, byteArrayToJSON(response));
           pluginRes.setKeepCallback(true);
-          escapeResponseCallbackContext.sendPluginResult(pluginRes);
+          ccEscapeResponse.sendPluginResult(pluginRes);
         } else {
           PluginResult pluginRes = new PluginResult(PluginResult.Status.ERROR, getAcsErrorCodeJSON(ERR_UNKNOWN, "Escape response error - " + errorCode));
           pluginRes.setKeepCallback(true);
-          escapeResponseCallbackContext.sendPluginResult(pluginRes);
+          ccEscapeResponse.sendPluginResult(pluginRes);
         }
       }
     });
   }
 
-  private void updateConnectionState(int newState) {
-    if (connectionStateCallbackContext != null && currentState != newState) {
-      currentState = newState;
-      PluginResult pluginRes = new PluginResult(PluginResult.Status.OK, getConnectionStateJSON(newState));
-      pluginRes.setKeepCallback(true);
-      connectionStateCallbackContext.sendPluginResult(pluginRes);
-    }
-  }
-
   private void releaseResources() {
-    stopScan(null);
+    if (mScanning) {
+      mScanning = false;
+      ccStartScan = null;
+      if (mScanHandler != null) {
+        mScanHandler.removeCallbacksAndMessages(null);
+      }
+      if (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled() && mBluetoothLeScanner != null) {
+        mBluetoothLeScanner.stopScan(mScanCallback);
+      }
+    }
+
+
     if (mBluetoothReader != null) {
       mBluetoothReader.setOnDeviceInfoAvailableListener(null);
       mBluetoothReader.setOnCardStatusChangeListener(null);
@@ -720,8 +819,8 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
       customMessage = "Bluetooth is off";
     } else if (errorCode == ERR_BT_ERROR && customMessage == null) {
       customMessage = "Unknown bluetooth error";
-    } else if (errorCode == ERR_SCAN_IN_PROGRESS && customMessage == null) {
-      customMessage = "Scan is already in progress";
+    } else if (errorCode == ERR_OPERATION_ALREADY_IN_PROGRESS && customMessage == null) {
+      customMessage = "Operation already in progress";
     } else if (errorCode == ERR_SCAN_FAILED && customMessage == null) {
       customMessage = "Scan failed";
     } else if (errorCode == ERR_GATT_ALREADY_CONNECTED && customMessage == null) {
@@ -738,36 +837,6 @@ public class Acs extends CordovaPlugin implements ActivityCompat.OnRequestPermis
 
     return gson.toJson(new StatusMessage(errorCode, customMessage));
   }
-
-  private String getCardStatusJSON(int cardStatus) {
-    Gson gson = new Gson();
-    if (cardStatus == BluetoothReader.CARD_STATUS_ABSENT) {
-      return gson.toJson(new StatusMessage(CARD_ABSENT, "Card is absent"));
-    } else if (cardStatus == BluetoothReader.CARD_STATUS_PRESENT) {
-      return gson.toJson(new StatusMessage(CARD_PRESENT, "Card is present."));
-    } else if (cardStatus == BluetoothReader.CARD_STATUS_POWER_SAVING_MODE) {
-      return gson.toJson(new StatusMessage(CARD_POWER_SAVING_MODE, "Reader is in power saving mode."));
-    } else if (cardStatus == BluetoothReader.CARD_STATUS_POWERED) {
-      return gson.toJson(new StatusMessage(CARD_POWERED, "Card is powered."));
-    }
-    return gson.toJson(new StatusMessage(CARD_UNKNOWN, "Status unknown."));
-  }
-
-  private String getConnectionStateJSON(int status) {
-    Gson gson = new Gson();
-    if (status == BluetoothReader.STATE_DISCONNECTED) {
-      return gson.toJson(new StatusMessage(CON_DISCONNECTED, "Disconnected"));
-    } else if (status == BluetoothReader.STATE_CONNECTED) {
-      return gson.toJson(new StatusMessage(CON_CONNECTED, "Connected."));
-    } else if (status == BluetoothReader.STATE_CONNECTING) {
-      return gson.toJson(new StatusMessage(CON_CONNECTING, "Connecting"));
-    } else if (status == BluetoothReader.STATE_DISCONNECTING) {
-      return gson.toJson(new StatusMessage(CON_DISCONNECTING, "Disconnecting"));
-    }
-    return gson.toJson(new StatusMessage(CON_UNKNOWN, "Status unknown."));
-  }
-
-
 
   private static JSONArray byteArrayToJSON(byte[] bytes) {
     JSONArray json = new JSONArray();

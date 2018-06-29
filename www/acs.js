@@ -62,7 +62,7 @@ const acs = {
     AcsErrorCodes[AcsErrorCodes["ERR_OPERATION_TIMED_OUT"] = 3] = "ERR_OPERATION_TIMED_OUT";
     AcsErrorCodes[AcsErrorCodes["ERR_BT_IS_OFF"] = 4] = "ERR_BT_IS_OFF";
     AcsErrorCodes[AcsErrorCodes["ERR_BT_ERROR"] = 5] = "ERR_BT_ERROR";
-    AcsErrorCodes[AcsErrorCodes["ERR_SCAN_IN_PROGRESS"] = 6] = "ERR_SCAN_IN_PROGRESS";
+    AcsErrorCodes[AcsErrorCodes["ERR_OPERATION_ALREADY_IN_PROGRESS"] = 6] = "ERR_OPERATION_ALREADY_IN_PROGRESS";
     AcsErrorCodes[AcsErrorCodes["ERR_SCAN_FAILED"] = 7] = "ERR_SCAN_FAILED";
     AcsErrorCodes[AcsErrorCodes["ERR_GATT_ALREADY_CONNECTED"] = 8] = "ERR_GATT_ALREADY_CONNECTED";
     AcsErrorCodes[AcsErrorCodes["ERR_GATT_CONNECTION_IN_PROGRESS"] = 9] = "ERR_GATT_CONNECTION_IN_PROGRESS";
@@ -78,11 +78,10 @@ const acs = {
 })(acs.AcsCardStatus);
 
 (function (AcsConnectionState) {
-    AcsConnectionState[AcsConnectionState["CON_UNKNOWN"] = 0] = "CON_UNKNOWN";
     AcsConnectionState[AcsConnectionState["CON_DISCONNECTED"] = 1] = "CON_DISCONNECTED";
     AcsConnectionState[AcsConnectionState["CON_CONNECTED"] = 2] = "CON_CONNECTED";
-    AcsConnectionState[AcsConnectionState["CON_CONNECTING"] = 3] = "CON_CONNECTING";
-    AcsConnectionState[AcsConnectionState["CON_DISCONNECTING"] = 4] = "CON_DISCONNECTING";
+    AcsConnectionState[AcsConnectionState["CON_DISCONNECTING"] = 3] = "CON_DISCONNECTING";
+    AcsConnectionState[AcsConnectionState["CON_CONNECTING"] = 4] = "CON_CONNECTING";
 })(acs.AcsConnectionState);
 
 module.exports = acs;
