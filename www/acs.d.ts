@@ -15,7 +15,7 @@ declare module 'cordova-plugin-acs' {
 
   export function listenForCardStatus(resolve, reject): AcsCardStatus;
 
-  export function listenForConnectionState(resolve, reject): AcsConnectionState;
+  export function listenForGattConnectionState(resolve, reject): AcsConnectionState;
 
   export function listenForNfcConnectionState(resolve, reject): AcsConnectionState;
 

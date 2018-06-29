@@ -43,7 +43,7 @@ public class Acs extends CordovaPlugin {
   private static final String LISTEN_FOR_ADPU_RESPONSE = "listenForAdpuResponse";
   private static final String LISTEN_FOR_ESCAPE_RESPONSE = "listenForEscapeResponse";
   private static final String LISTEN_FOR_CARD_STATUS = "listenForCardStatus";
-  private static final String LISTEN_FOR_CONNECTION_STATE = "listenForConnectionState";
+  private static final String LISTEN_FOR_GATT_CONNECTION_STATE = "listenForGattConnectionState";
   private static final String LISTEN_FOR_NFC_CONNECTION_STATE = "listenForNfcConnectionState";
   private static final String LISTEN_FOR_BT_CONNECTION_STATE = "listenForBtConnectionState";
   private static final String START_SCAN = "startScan";
@@ -105,7 +105,7 @@ public class Acs extends CordovaPlugin {
   private CallbackContext ccBtConnectionState;
   private CallbackContext ccCardStatus;
   private CallbackContext ccConnectGatt;
-  private CallbackContext ccConnectionState;
+  private CallbackContext ccGattConnectionState;
   private CallbackContext ccDetectReader;
   private CallbackContext ccEscapeResponse;
   private CallbackContext ccNfcConnectionState;
@@ -209,8 +209,8 @@ public class Acs extends CordovaPlugin {
       cordova.getThreadPool().execute(() -> startScan(callbackContext));
     } else if (action.equalsIgnoreCase(STOP_SCAN)) {
       cordova.getThreadPool().execute(() -> stopScan(callbackContext));
-    } else if (action.equalsIgnoreCase(LISTEN_FOR_CONNECTION_STATE)) {
-      ccConnectionState = callbackContext;
+    } else if (action.equalsIgnoreCase(LISTEN_FOR_GATT_CONNECTION_STATE)) {
+      ccGattConnectionState = callbackContext;
     } else if (action.equalsIgnoreCase(LISTEN_FOR_ADPU_RESPONSE)) {
       ccAdpuResponse = callbackContext;
     } else if (action.equalsIgnoreCase(LISTEN_FOR_ESCAPE_RESPONSE)) {
@@ -610,12 +610,12 @@ public class Acs extends CordovaPlugin {
 
   private void initializeGattCallbackListeners() {
     mGattCallback.setOnConnectionStateChangeListener((final BluetoothGatt gatt, final int state, final int newState) -> {
-      if (ccConnectionState != null && !ccConnectionState.isFinished()) {
+      if (ccGattConnectionState != null && !ccGattConnectionState.isFinished()) {
         switch (newState) {
           case BluetoothReader.STATE_DISCONNECTED:
             PluginResult off = new PluginResult(PluginResult.Status.OK, CON_DISCONNECTED);
             off.setKeepCallback(true);
-            ccConnectionState.sendPluginResult(off);
+            ccGattConnectionState.sendPluginResult(off);
 
             if (ccConnectGatt != null && !ccConnectGatt.isFinished()) {
               ccConnectGatt.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Failed to connect to GATT"));
@@ -625,7 +625,7 @@ public class Acs extends CordovaPlugin {
           case BluetoothReader.STATE_CONNECTED:
             PluginResult on = new PluginResult(PluginResult.Status.OK, CON_CONNECTED);
             on.setKeepCallback(true);
-            ccConnectionState.sendPluginResult(on);
+            ccGattConnectionState.sendPluginResult(on);
 
             if (ccConnectGatt != null && !ccConnectGatt.isFinished()) {
               ccConnectGatt.success();
@@ -635,12 +635,12 @@ public class Acs extends CordovaPlugin {
           case BluetoothReader.STATE_DISCONNECTING:
             PluginResult turningOff = new PluginResult(PluginResult.Status.OK, CON_DISCONNECTING);
             turningOff.setKeepCallback(true);
-            ccConnectionState.sendPluginResult(turningOff);
+            ccGattConnectionState.sendPluginResult(turningOff);
             break;
           case BluetoothReader.STATE_CONNECTING:
             PluginResult turningOn = new PluginResult(PluginResult.Status.OK, CON_CONNECTING);
             turningOn.setKeepCallback(true);
-            ccConnectionState.sendPluginResult(turningOn);
+            ccGattConnectionState.sendPluginResult(turningOn);
             break;
         }
       }
