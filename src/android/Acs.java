@@ -591,6 +591,7 @@ public class Acs extends CordovaPlugin {
       mBluetoothGatt = device.connectGatt(cordova.getContext(), true, mGattCallback);
     } catch (Exception e) {
       ccConnectGatt.error(getAcsErrorCodeJSON(ERR_UNKNOWN, "Connect GATT - " + e.getMessage()));
+      ccConnectGatt = null;
       releaseResources();
     }
   }
@@ -603,6 +604,7 @@ public class Acs extends CordovaPlugin {
     releaseResources();
     if (ccConnectGatt != null) {
       ccConnectGatt.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_CANCELLED, null));
+      ccConnectGatt = null;
     }
     callbackContext.success();
   }
@@ -800,7 +802,7 @@ public class Acs extends CordovaPlugin {
         handler.removeCallbacksAndMessages(null);
         return;
       }
-      
+
       if (!callbackContext.isFinished()) {
         callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_TIMED_OUT, msg));
       }
