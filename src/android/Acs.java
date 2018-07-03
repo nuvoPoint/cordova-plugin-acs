@@ -442,7 +442,6 @@ public class Acs extends CordovaPlugin {
 
     foundDevices = new ArrayList<>();
     ccStartScan = callbackContext;
-    pluginActivity.startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_ENABLE_BT);
 
     mScanHandler.postDelayed(() -> {
       if (mScanning) {
