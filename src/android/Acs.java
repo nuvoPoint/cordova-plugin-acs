@@ -574,6 +574,10 @@ public class Acs extends CordovaPlugin {
         return;
       }
 
+      if (!mBluetoothAdapter.isDiscovering()) {
+        mBluetoothAdapter.startDiscovery();
+      }
+
       // Get the device address
       String myDeviceAddress = data.getString(0);
       ccConnectGatt = callbackContext;
