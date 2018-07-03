@@ -442,7 +442,6 @@ public class Acs extends CordovaPlugin {
 
     foundDevices = new ArrayList<>();
     ccStartScan = callbackContext;
-    pluginActivity.startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_ENABLE_BT);
 
     mScanHandler.postDelayed(() -> {
       if (mScanning) {
@@ -573,6 +572,10 @@ public class Acs extends CordovaPlugin {
       if (ccConnectGatt != null) {
         callbackContext.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_IN_PROGRESS, null));
         return;
+      }
+
+      if (!mBluetoothAdapter.isDiscovering()) {
+        mBluetoothAdapter.startDiscovery();
       }
 
       // Get the device address
