@@ -95,7 +95,6 @@ public class Acs extends CordovaPlugin {
   private BluetoothLeScanner mBluetoothLeScanner;
 
   //For Scanning
-  private boolean mScanning;
   private Handler mScanHandler = new Handler();
   private ArrayList<BTScanResult> foundDevices;
   private static final long SCAN_PERIOD = 20000;
@@ -245,13 +244,15 @@ public class Acs extends CordovaPlugin {
       return;
     }
 
-    if (mBluetoothAdapter == null) {
-      callbackContext.error(getAcsErrorCodeJSON(ERR_BT_ERROR, "Critical error. Bluetooth adapter is not initialized"));
-      return;
+    if (ccRequestBt != null) {
+      if(!ccRequestBt.isFinished()) {
+        callbackContext.error(ERR_OPERATION_ALREADY_IN_PROGRESS);
+        return;
+      }
     }
 
-    if (ccRequestBt != null) {
-      callbackContext.error(ERR_OPERATION_ALREADY_IN_PROGRESS);
+    if (mBluetoothAdapter == null) {
+      callbackContext.error(getAcsErrorCodeJSON(ERR_BT_ERROR, "Critical error. Bluetooth adapter is not initialized"));
       return;
     }
 
@@ -260,7 +261,9 @@ public class Acs extends CordovaPlugin {
       return;
     }
 
+
     ccRequestBt = callbackContext;
+    checkIfTimedOut(callbackContext, "Request turn on BT" ,30000);
     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
     pluginActivity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
   }
@@ -292,11 +295,14 @@ public class Acs extends CordovaPlugin {
     }
 
     if (ccRequestBtPermissions != null) {
-      callbackContext.error(ERR_OPERATION_ALREADY_IN_PROGRESS);
-      return;
+      if(!ccRequestBtPermissions.isFinished()) {
+        callbackContext.error(ERR_OPERATION_ALREADY_IN_PROGRESS);
+        return;
+      }
     }
 
     ccRequestBtPermissions = callbackContext;
+    checkIfTimedOut(callbackContext, "Request Bt Permissions" ,30000);
     String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
     cordova.requestPermissions(this, REQUEST_PERMISSION_ACCESS_COARSE_LOCATION, permissions);
   }
@@ -436,19 +442,18 @@ public class Acs extends CordovaPlugin {
     }
 
     if (ccStartScan != null) {
-      callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_ALREADY_IN_PROGRESS, null));
-      return;
+      if(!ccStartScan.isFinished()){
+        callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_ALREADY_IN_PROGRESS, null));
+        return;
+      }
     }
 
     foundDevices = new ArrayList<>();
     ccStartScan = callbackContext;
 
     mScanHandler.postDelayed(() -> {
-      if (mScanning) {
-        mScanning = false;
-        if (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled() && mBluetoothLeScanner != null) {
-          mBluetoothLeScanner.stopScan(mScanCallback);
-        }
+      if (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled() && mBluetoothLeScanner != null) {
+        mBluetoothLeScanner.stopScan(mScanCallback);
       }
       if (ccStartScan != null) {
         ccStartScan.success();
@@ -456,7 +461,6 @@ public class Acs extends CordovaPlugin {
       }
     }, SCAN_PERIOD);
 
-    mScanning = true;
     mBluetoothLeScanner.startScan(mScanCallback);
   }
 
@@ -466,7 +470,7 @@ public class Acs extends CordovaPlugin {
       return;
     }
 
-    if (ccStartScan == null || !mScanning) {
+    if (ccStartScan == null || ccStartScan.isFinished()) {
       callbackContext.success();
       return;
     }
@@ -482,7 +486,6 @@ public class Acs extends CordovaPlugin {
     }
 
     mScanHandler.removeCallbacksAndMessages(null);
-    mScanning = false;
     mBluetoothLeScanner.stopScan(mScanCallback);
     ccStartScan.success();
     ccStartScan = null;
@@ -570,8 +573,10 @@ public class Acs extends CordovaPlugin {
 
       // Check for connections in progress
       if (ccConnectGatt != null) {
-        callbackContext.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_IN_PROGRESS, null));
-        return;
+        if(!ccConnectGatt.isFinished()){
+          callbackContext.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_IN_PROGRESS, null));
+          return;
+        }
       }
 
       if (!mBluetoothAdapter.isDiscovering()) {
@@ -606,7 +611,9 @@ public class Acs extends CordovaPlugin {
 
     releaseResources();
     if (ccConnectGatt != null) {
-      ccConnectGatt.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_CANCELLED, null));
+      if(!ccConnectGatt.isFinished()){
+        ccConnectGatt.error(getAcsErrorCodeJSON(ERR_GATT_CONNECTION_CANCELLED, null));
+      }
       ccConnectGatt = null;
     }
     callbackContext.success();
@@ -623,7 +630,9 @@ public class Acs extends CordovaPlugin {
             ccGattConnectionState.sendPluginResult(off);
 
             if (ccConnectGatt != null) {
-              ccConnectGatt.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Failed to connect to GATT"));
+              if(!ccConnectGatt.isFinished()) {
+                ccConnectGatt.error(getAcsErrorCodeJSON(ERR_OPERATION_FAILED, "Failed to connect to GATT"));
+              }
               ccConnectGatt = null;
             }
             break;
@@ -633,7 +642,9 @@ public class Acs extends CordovaPlugin {
             ccGattConnectionState.sendPluginResult(on);
 
             if (ccConnectGatt != null) {
-              ccConnectGatt.success();
+              if(!ccConnectGatt.isFinished()){
+                ccConnectGatt.success();
+              }
               ccConnectGatt = null;
             }
             break;
@@ -658,8 +669,10 @@ public class Acs extends CordovaPlugin {
     }
 
     if (ccDetectReader != null) {
-      callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_ALREADY_IN_PROGRESS, null));
-      return;
+      if(!ccDetectReader.isFinished()){
+        callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_ALREADY_IN_PROGRESS, null));
+        return;
+      }
     }
 
     if (mBluetoothReaderManager != null) {
@@ -680,7 +693,9 @@ public class Acs extends CordovaPlugin {
     mBluetoothReaderManager.setOnReaderDetectionListener((BluetoothReader bluetoothReader) -> {
       if (!(bluetoothReader instanceof Acr1255uj1Reader)) {
         if (ccDetectReader != null) {
-          ccDetectReader.error(getAcsErrorCodeJSON(ERR_READER_TYPE_NOT_SUPPORTED, null));
+          if(!ccDetectReader.isFinished()){
+            ccDetectReader.error(getAcsErrorCodeJSON(ERR_READER_TYPE_NOT_SUPPORTED, null));
+          }
           ccDetectReader = null;
         }
         releaseResources();
@@ -690,7 +705,9 @@ public class Acs extends CordovaPlugin {
       mBluetoothReader = bluetoothReader;
       initializeBluetoothReaderListeners();
       if (ccDetectReader != null) {
-        ccDetectReader.success();
+        if(!ccDetectReader.isFinished()) {
+          ccDetectReader.success();
+        }
         ccDetectReader = null;
       }
     });
@@ -764,15 +781,12 @@ public class Acs extends CordovaPlugin {
   }
 
   private void releaseResources() {
-    if (mScanning) {
-      mScanning = false;
-      ccStartScan = null;
-      if (mScanHandler != null) {
-        mScanHandler.removeCallbacksAndMessages(null);
-      }
-      if (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled() && mBluetoothLeScanner != null) {
-        mBluetoothLeScanner.stopScan(mScanCallback);
-      }
+    ccStartScan = null;
+    if (mScanHandler != null) {
+      mScanHandler.removeCallbacksAndMessages(null);
+    }
+    if (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled() && mBluetoothLeScanner != null) {
+      mBluetoothLeScanner.stopScan(mScanCallback);
     }
 
 
@@ -809,6 +823,7 @@ public class Acs extends CordovaPlugin {
       if (!callbackContext.isFinished()) {
         callbackContext.error(getAcsErrorCodeJSON(ERR_OPERATION_TIMED_OUT, msg));
       }
+
       handler.removeCallbacksAndMessages(null);
     }, delay);
   }
@@ -879,7 +894,7 @@ public class Acs extends CordovaPlugin {
 
       c = hexString.charAt(i);
       if (c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a'
-        && c <= 'f') {
+              && c <= 'f') {
         count++;
       }
     }
