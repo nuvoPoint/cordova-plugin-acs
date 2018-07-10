@@ -804,8 +804,12 @@ public class Acs extends CordovaPlugin {
     }
     if (mBluetoothGatt != null) {
       mBluetoothGatt.disconnect();
+    }
+    if (mBluetoothGatt != null) {
       mBluetoothGatt.close();
       mBluetoothGatt = null;
+    }
+    if(mGattCallback != null){
       mGattCallback.setOnConnectionStateChangeListener(null);
       mGattCallback = null;
     }
