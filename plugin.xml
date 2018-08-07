@@ -13,7 +13,7 @@
     <keywords>cordova,android,nfc,acr,acs</keywords>
 
     <engines>
-        <engine name="android" version=">=7.1.1" />
+        <engine name="cordova-android" version=">=7.1.1" />
     </engines>
 
     <platform name="android">
